@@ -6,7 +6,7 @@ from hashlib import sha1
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 from flask import Flask
-app = Flask("__main__")
+app = Flask("__main__", template_folder='./templates')
 
 
 app.config['SECRET_KEY'] = 'thytyhjeyt'
@@ -42,13 +42,13 @@ class Post(db.Model):
     password = db.Column(db.String(500))
     options = db.Column(db.String(50)) #noko sage
 
-class Boards(db.model):
-    name = db.Column(db.String(50))
+class Boards(db.Model):
+    name = db.Column(db.String(50), primary_key=True)
     desc = db.Column(db.String(500))
     last_id = db.Column(db.Integer) #to generate new id
 
-class User(db.model):
-    username = db.Column(db.String(50))
+class User(db.Model):
+    username = db.Column(db.String(50), primary_key=True)
     password = db.Column(db.String(500))
     email = db.Column(db.String(500))
     #rank 0 = janny
