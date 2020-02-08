@@ -1,8 +1,7 @@
-<form action = "http://localhost:5000/{{board}}" method = "post">
+<form action = "http://localhost:5000/{{board}}/{{thread_id}}" method = "post">
          <body>
          	<center>
         <h1>/{{board}}/</h1>
-        <p1>{{desc}}</p1>
          <p><input type = "text" name = "name" placeholder="name" size=50/></p>
          <textarea id="body" rows="4" cols="50" placeholder="body" name="body"></textarea>
          <p><input type = "password" name = "password" placeholder="password" size=50/></p>
@@ -31,6 +30,7 @@ div.transbox {
   filter: alpha(opacity=60); /* For IE8 and earlier */
 }
 
+
 div.transboxx {
   background-color: #e6ffcc;
   border: 1px solid black;
@@ -43,23 +43,19 @@ div.transboxx {
 
  </head>
 
-{%for t in threads%}
 </style>
 <div class="background">
   <div class="transboxx">
       
         <body>
-        	<h3>
-        	{{t.name}} {{t.id}}
+          <h3>
+          {{thread.name}}
         </h3>
         <p>
-        	<a href="http://localhost:5000/{{board}}/{{t.id}}">Reply</a>
-
+          {{thread.id}}
         </p>
-
-
         <p>
-        	{{t.body}}
+          {{thread.body}}
         </p>
         </body>
        
@@ -67,15 +63,19 @@ div.transboxx {
    </div>
    </div> 
 
-{%for p in Post.query.filter_by(board=board).filter_by(thread_id = t.id).limit(2).all()%}
-   <div class="background">
+
+{%for p in posts%}
+</style>
+<div class="background">
   <div class="transbox">
       
         <body>
         	<h3>
-        	{{p.name}}  {{p.id}}
+        	{{p.name}}
         </h3>
-
+        <p>
+        	{{p.id}}
+        </p>
         <p>
         	{{p.body}}
         </p>
@@ -83,10 +83,7 @@ div.transboxx {
        
 
    </div>
-   </div>
-
-   {%endfor%}
-   <p>       </p>
+   </div>   
    {%endfor%}
 
  
