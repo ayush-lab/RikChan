@@ -3,9 +3,9 @@
          	<center>
         <h1>/{{board}}/</h1>
         <p1>{{desc}}</p1>
-         <p><input type = "text" name = "name" placeholder="name" size=50/></p>
+         <p><input type = "text" name = "name" placeholder="name" size=50 value="anon"/></p>
          <textarea id="body" rows="4" cols="50" placeholder="body" name="body"></textarea>
-         <p><input type = "password" name = "password" placeholder="password" size=50/></p>
+         <p><input type = "password" name = "password" placeholder="password" size=50 value="tatt"/></p>
 
          <p1><button class="button"><b>SUMBIT</b></p1></button>
       </form>
@@ -22,7 +22,12 @@
 *{box-sizing: border-box;}
 
 
-
+.right{
+    float:right;
+}
+.left{
+    float:left;
+}
 
 div.transbox {
   background-color: #ffffff;
@@ -50,10 +55,11 @@ div.transboxx {
       
         <body>
         	<h3>
-        	{{t.name}} {{t.id}}
+        	<span class="left">{{t.name}}       No.{{t.id}}</span> <span class="right">{{t.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}}</span>
         </h3>
+        </br>
         <p>
-        	<a href="http://localhost:5000/{{board}}/{{t.id}}">Reply</a>
+        	<a href="http://localhost:5000/{{board}}/{{t.id}}"> Reply</a>
 
         </p>
 
@@ -73,9 +79,9 @@ div.transboxx {
       
         <body>
         	<h3>
-        	{{p.name}}  {{p.id}}
+        	<span class="left">{{p.name}}    No.{{p.id}}</span> <span class="right">{{p.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}}</span>
         </h3>
-
+        </br>
         <p>
         	{{p.body}}
         </p>

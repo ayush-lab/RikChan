@@ -2,9 +2,9 @@
          <body>
          	<center>
         <h1>/{{board}}/</h1>
-         <p><input type = "text" name = "name" placeholder="name" size=50/></p>
+         <p><input type = "text" name = "name" placeholder="name" size=50 value="anon"/></p>
          <textarea id="body" rows="4" cols="50" placeholder="body" name="body"></textarea>
-         <p><input type = "password" name = "password" placeholder="password" size=50/></p>
+         <p><input type = "password" name = "password" placeholder="password" size=50 value="anon"/></p>
 
          <p1><button class="button"><b>SUMBIT</b></p1></button>
       </form>
@@ -12,8 +12,8 @@
    </body>
 
 
-
-
+<a href = {{url_for("board_home" , board=board)}}> <font> <center> Go back to {{board}} </center> </font> </a>
+</br>
  <style>
   <body>
 
@@ -21,6 +21,13 @@
 *{box-sizing: border-box;}
 
 
+
+.right{
+    float:right;
+}
+.left{
+    float:left;
+}
 
 
 div.transbox {
@@ -49,11 +56,14 @@ div.transboxx {
       
         <body>
           <h3>
-          {{thread.name}}
+         <span class="left">
+          {{thread.name}}       No.{{thread.id}}
+        </span>
+        <span class="right">
+        {{thread.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}}
+        </span>
         </h3>
-        <p>
-          {{thread.id}}
-        </p>
+        </br>
         <p>
           {{thread.body}}
         </p>
@@ -71,11 +81,14 @@ div.transboxx {
       
         <body>
         	<h3>
-        	{{p.name}}
+            <span class="left">
+        	{{p.name}}       No.{{p.id}}
+            </span>
+            <span class="right">
+            {{p.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}}
+            </span>
         </h3>
-        <p>
-        	{{p.id}}
-        </p>
+        </br>
         <p>
         	{{p.body}}
         </p>
