@@ -1,14 +1,19 @@
-from flask import render_template , Flask , request , session , redirect , url_for
+from flask import render_template , Flask , request , session , redirect , url_for , send_from_directory
 import os
 from sqlalchemy import desc
 basedir = os.path.abspath(os.path.dirname(__file__))
 from werkzeug.security import generate_password_hash as enc
 from werkzeug.security import check_password_hash as dec
+from werkzeug.utils import secure_filename
 from hashlib import sha1
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 app = Flask("__main__" , template_folder=basedir+"/templates")
 
+app.config["UPLOAD_FOLDER"] = basedir + "/static/media"
+def allowed(filename):
+	print(filename)
+	return filename.split(".")[len(filename.split("."))-1] in ['jpg','jpeg','png','webm' , 'gif'] , filename.split(".")[len(filename.split("."))-1]
 
 app.config['SECRET_KEY'] = 'thytyhjeyt'
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'data.db')
@@ -19,9 +24,10 @@ db = SQLAlchemy(app)
 
 
 class Thread(db.Model):
+	uni = db.Column(db.String(100) , primary_key = True)
 	board = db.Column(db.String(50))
 	bump = db.Column(db.Integer , default = 0)
-	id = db.Column(db.Integer , unique=True , primary_key = True) #number, not the cookie id
+	id = db.Column(db.Integer) #number, not the cookie id
 	name = db.Column(db.String(50))
 	img_name = db.Column(db.String(200) , default="")
 	img_num = db.Column(db.Integer , default = 0)
@@ -33,7 +39,8 @@ class Thread(db.Model):
 	#pinned = db.Column(db.Integer)  #is it pinned or not? 
 
 class Post(db.Model):
-	id = db.Column(db.Integer , unique=True , primary_key=True) #number, not the cookie id
+	uni = db.Column(db.String(100), primary_key=True)
+	id = db.Column(db.Integer) #number, not the cookie id
 	name = db.Column(db.String(50))
 	img_name = db.Column(db.String(200) , default="")
 	img_num = db.Column(db.Integer , default = 0)
@@ -60,6 +67,14 @@ class User(db.Model):
 	#rank 2 = admin
 	rank = db.Column(db.Integer, default=0)
 	board_name = db.Column(db.String(50))
+
+class Media(db.Model):
+	board = db.Column(db.String(50), primary_key=True)
+	jpg = db.Column(db.Integer, default=0)
+	jpeg = db.Column(db.Integer, default=0)
+	png = db.Column(db.Integer, default=0)
+	gif = db.Column(db.Integer, default=0)
+	webm = db.Column(db.Integer, default=0)
 
 def tripcodegen(thing):
 	return sha1(thing.encode("utf-8")).hexdigest()[:8]
@@ -94,6 +109,10 @@ def logout():
 		session.pop("username")
 		session.pop("rank")
 
+@app.route("/media/<path:p>")
+@app.route("/media/<path:p>/")
+def serve(p):
+	return send_from_directory(app.config["UPLOAD_FOLDER"] , p)
 
 @app.route("/_ct_", methods=["GET" , "POST"])
 @app.route("/_ct_/", methods=["GET" , "POST"])
@@ -103,6 +122,9 @@ def ct():
 			if request.method == "POST":
 				print(request.form)
 				db.session.add(Boards(name = request.form["board"] , desc = request.form["desc"]))
+				db.session.commit()
+				print("Created MEDIA")
+				db.session.add(Media(board = request.form["board"]))
 				db.session.commit()
 			return render_template("ct.html")
 		else:
@@ -125,9 +147,75 @@ def board_home(board):
 			bo = b
 
 	if request.method == "POST":
-		#print(request.form)
+		#print(request.files)
+		f = None
 		if bo:
-			t = Thread(id = bo.last_id+1 , name = request.form["name"] , body = request.form["body"] , password = enc(request.form["password"]), board = board)
+			t = None
+			if "file" in request.files:
+				file = request.files["file"]
+				file_name = secure_filename(file.filename)
+				print("FILE FOUND")
+				print(file_name)
+				if allowed(file_name)[0]:
+					if allowed(file_name)[1] == "gif":
+						med = Media.query.filter_by(board=board).all()[0]
+						file.save(os.path.join(app.config['UPLOAD_FOLDER'],board + str(med.gif+1)+".gif"))
+						med.gif = med.gif + 1
+						db.session.commit()
+						f = "gif"
+					elif allowed(file_name)[1] == "jpeg":
+						med = Media.query.filter_by(board=board).all()[0]
+						file.save(os.path.join(app.config['UPLOAD_FOLDER'],board + str(med.jpeg+1) + ".jpeg"))
+						med.jpeg = med.jpeg + 1
+						db.session.commit()
+						f = "jpeg"
+					elif allowed(file_name)[1] == "png":
+						med = Media.query.filter_by(board=board).all()[0]
+						file.save(os.path.join(app.config['UPLOAD_FOLDER'],board + str(med.png+1) + ".png"))
+						med.png = med.png + 1
+						db.session.commit()
+						f = "png"
+					elif allowed(file_name)[1] == "jpg":
+						med = Media.query.filter_by(board=board).all()[0]
+						file.save(os.path.join(app.config['UPLOAD_FOLDER'],board + str(med.jpg+1) + ".jpg"))
+						med.jpg = med.jpg + 1
+						db.session.commit()
+						f = "jpg"
+					elif allowed(file_name)[1] == "webm":
+						med = Media.query.filter_by(board=board).all()[0]
+						file.save(os.path.join(app.config['UPLOAD_FOLDER'],board + str(med.webm+1) + ".webm"))
+						med.webm = med.webm + 1
+						db.session.commit()
+						f = "webm"
+			#else:
+			if not f:
+				t = Thread(uni = bo.name + str(bo.last_id+1),id = bo.last_id+1 , name = request.form["name"] , body = request.form["body"] , password = enc(request.form["password"]), board = board)
+			else:
+				print(f , "f")
+				med = Media.query.filter_by(board=board).all()[0]
+				file_name = secure_filename(file.filename)
+				if f == "gif":
+					t = Thread(img_ext = f , img_num = med.gif, img_name=file_name, uni = bo.name + str(bo.last_id+1),id=bo.last_id + 1, name=request.form["name"], body=request.form["body"],
+							   password=enc(request.form["password"]), board=board)
+				elif f == "jpg":
+					t = Thread(img_ext=f, img_num=med.jpg,uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
+							   name=request.form["name"], body=request.form["body"],
+							   password=enc(request.form["password"]), board=board)
+				elif f == "jpeg":
+					t = Thread(img_ext=f, img_num=med.jpeg, uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
+							   name=request.form["name"], body=request.form["body"],
+							   password=enc(request.form["password"]), board=board)
+				elif f == "png":
+					t = Thread(img_ext=f, img_num=med.png, uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
+							   name=request.form["name"], body=request.form["body"],
+							   password=enc(request.form["password"]), board=board)
+				elif f == "webm":
+					t = Thread(img_ext=f, img_num=med.webm ,uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
+							   name=request.form["name"], body=request.form["body"],
+							   password=enc(request.form["password"]), board=board)
+
+
+
 			print(bo.last_id)
 			bo.last_id = bo.last_id + 1
 			db.session.commit()
@@ -154,9 +242,11 @@ def board_thread(board , thread_id):
 	#	thread = None
 
 	if request.method == "POST":
-		#print(request.form)
+		print(request.files)
 		if thread:
-			p = Post(id = bo.last_id+1 , name = request.form["name"] , body = request.form["body"] , password = enc(request.form["password"]), board = board , thread_id = thread_id)
+			if "file" in request.files:
+				pass
+			p = Post(uni = bo.name + str(bo.last_id+1),id = bo.last_id+1 , name = request.form["name"] , body = request.form["body"] , password = enc(request.form["password"]), board = board , thread_id = thread_id)
 			print(bo.last_id)
 			bo.last_id = bo.last_id + 1
 			db.session.commit()
