@@ -80,7 +80,7 @@ div.transboxx {
    </div>
    </div> 
 
-{%for p in Post.query.filter_by(board=board).filter_by(thread_id = t.id).limit(2).all()%}
+{%for p in Post.query.filter_by(board=board).filter_by(thread_id = t.id).all()[::-1][0:2][::-1]%}
    <div class="background">
   <div class="transbox">
       
@@ -90,6 +90,13 @@ div.transboxx {
         </h3>
         </br>
         <p>
+
+            {%if p.img_num %}
+                {%if p.img_ext!="webm" %}
+                    <img src="../media/{{board}}{{p.img_num}}.{{p.img_ext}}" alt="gay"></br></br>
+                {%endif%}
+            {%endif%}
+
         	{{p.body}}
         </p>
         </body>

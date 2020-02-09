@@ -1,11 +1,11 @@
-<form action = "http://localhost:5000/{{board}}/{{thread_id}}" method = "post">
+<form action = "http://localhost:5000/{{board}}/{{thread_id}}" method = "post" enctype=multipart/form-data>
          <body>
          	<center>
         <h1>/{{board}}/</h1>
          <p><input type = "text" name = "name" placeholder="name" size=50 value="anon"/></p>
          <textarea id="body" rows="4" cols="50" placeholder="body" name="body"></textarea>
          <p><input type = "password" name = "password" placeholder="password" size=50 value="anon"/></p>
-
+            <input type="file" name="file">
          <p1><button class="button"><b>SUMBIT</b></p1></button>
       </form>
       </center>
@@ -33,7 +33,7 @@
 div.transbox {
   background-color: #ffffff;
   border: 1px solid black;
-  opacity: 0.6;
+  
   filter: alpha(opacity=60); /* For IE8 and earlier */
 }
 
@@ -41,7 +41,7 @@ div.transbox {
 div.transboxx {
   background-color: #e6ffcc;
   border: 1px solid black;
-  opacity: 0.6;
+
   filter: alpha(opacity=60); /* For IE8 and earlier */
 }
 
@@ -65,6 +65,11 @@ div.transboxx {
         </h3>
         </br>
         <p>
+            {%if thread.img_num %}
+                {%if thread.img_ext!="webm" %}
+                    <img src="../media/{{board}}{{thread.img_num}}.{{thread.img_ext}}" alt="gay"></br></br>
+                {%endif%}
+            {%endif%}
           {{thread.body}}
         </p>
         </body>
@@ -90,6 +95,13 @@ div.transboxx {
         </h3>
         </br>
         <p>
+
+            {%if p.img_num %}
+                {%if p.img_ext!="webm" %}
+                    <img src="../media/{{board}}{{p.img_num}}.{{p.img_ext}}" alt="gay"></br></br>
+                {%endif%}
+            {%endif%}
+
         	{{p.body}}
         </p>
         </body>

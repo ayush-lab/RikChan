@@ -1,6 +1,6 @@
 from flask import render_template , Flask , request , session , redirect , url_for , send_from_directory
 import os
-from sqlalchemy import desc
+from sqlalchemy import desc , asc
 basedir = os.path.abspath(os.path.dirname(__file__))
 from werkzeug.security import generate_password_hash as enc
 from werkzeug.security import check_password_hash as dec
@@ -222,7 +222,8 @@ def board_home(board):
 			print(bo.last_id)
 			db.session.add(t)
 			db.session.commit()
-			return render_template("board.html" ,Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
+
+			return render_template("board.html" , Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
 
 	if bo:
 		return render_template("board.html" ,Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
@@ -243,10 +244,86 @@ def board_thread(board , thread_id):
 
 	if request.method == "POST":
 		print(request.files)
+		f = None
 		if thread:
 			if "file" in request.files:
-				pass
-			p = Post(uni = bo.name + str(bo.last_id+1),id = bo.last_id+1 , name = request.form["name"] , body = request.form["body"] , password = enc(request.form["password"]), board = board , thread_id = thread_id)
+				file = request.files["file"]
+				file_name = secure_filename(file.filename)
+				print("FILE FOUND")
+				print(file_name)
+				if allowed(file_name)[0]:
+					if allowed(file_name)[1] == "gif":
+						med = Media.query.filter_by(board=board).all()[0]
+						file.save(os.path.join(app.config['UPLOAD_FOLDER'], board + str(med.gif + 1) + ".gif"))
+						med.gif = med.gif + 1
+						db.session.commit()
+						f = "gif"
+					elif allowed(file_name)[1] == "jpeg":
+						med = Media.query.filter_by(board=board).all()[0]
+						file.save(os.path.join(app.config['UPLOAD_FOLDER'], board + str(med.jpeg + 1) + ".jpeg"))
+						med.jpeg = med.jpeg + 1
+						db.session.commit()
+						f = "jpeg"
+					elif allowed(file_name)[1] == "png":
+						med = Media.query.filter_by(board=board).all()[0]
+						file.save(os.path.join(app.config['UPLOAD_FOLDER'], board + str(med.png + 1) + ".png"))
+						med.png = med.png + 1
+						db.session.commit()
+						f = "png"
+					elif allowed(file_name)[1] == "jpg":
+						med = Media.query.filter_by(board=board).all()[0]
+						file.save(os.path.join(app.config['UPLOAD_FOLDER'], board + str(med.jpg + 1) + ".jpg"))
+						med.jpg = med.jpg + 1
+						db.session.commit()
+						f = "jpg"
+					elif allowed(file_name)[1] == "webm":
+						med = Media.query.filter_by(board=board).all()[0]
+						file.save(os.path.join(app.config['UPLOAD_FOLDER'], board + str(med.webm + 1) + ".webm"))
+						med.webm = med.webm + 1
+						db.session.commit()
+						f = "webm"
+			# else:
+			if not f:
+				p = Post(uni=bo.name + str(bo.last_id + 1), thread_id = thread_id, id=bo.last_id + 1, name=request.form["name"],
+						   body=request.form["body"], password=enc(request.form["password"]), board=board)
+			else:
+				print(f, "f")
+				med = Media.query.filter_by(board=board).all()[0]
+				file_name = secure_filename(file.filename)
+				if f == "gif":
+					p = Post(img_ext=f, thread_id = thread_id, img_num=med.gif, img_name=file_name, uni=bo.name + str(bo.last_id + 1),
+							   id=bo.last_id + 1, name=request.form["name"], body=request.form["body"],
+							   password=enc(request.form["password"]), board=board)
+				elif f == "jpg":
+					p = Post(img_ext=f, thread_id = thread_id, img_num=med.jpg, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
+							   id=bo.last_id + 1,
+							   name=request.form["name"], body=request.form["body"],
+							   password=enc(request.form["password"]), board=board)
+				elif f == "jpeg":
+					p = Post(img_ext=f, thread_id = thread_id, img_num=med.jpeg, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
+							   id=bo.last_id + 1,
+							   name=request.form["name"], body=request.form["body"],
+							   password=enc(request.form["password"]), board=board)
+				elif f == "png":
+					p = Post(img_ext=f, thread_id = thread_id, img_num=med.png, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
+							   id=bo.last_id + 1,
+							   name=request.form["name"], body=request.form["body"],
+							   password=enc(request.form["password"]), board=board)
+				elif f == "webm":
+					p = Post(img_ext=f, thread_id = thread_id, img_num=med.webm, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
+							   id=bo.last_id + 1,
+							   name=request.form["name"], body=request.form["body"],
+							   password=enc(request.form["password"]), board=board)
+
+			#print(bo.last_id)
+			#bo.last_id = bo.last_id + 1
+			#db.session.commit()
+			#print(bo.last_id)
+			#db.session.add(t)
+			#db.session.commit()
+
+
+			#p = Post(uni = bo.name + str(bo.last_id+1),id = bo.last_id+1 , name = request.form["name"] , body = request.form["body"] , password = enc(request.form["password"]), board = board , thread_id = thread_id)
 			print(bo.last_id)
 			bo.last_id = bo.last_id + 1
 			db.session.commit()
@@ -257,10 +334,10 @@ def board_thread(board , thread_id):
 			print(bo.last_id)
 			db.session.add(p)
 			db.session.commit()
-			return render_template("thread.html" , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(desc(Post.timestamp)).all())
+			return render_template("thread.html" , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
 
 	if thread:
-		return render_template("thread.html" , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(desc(Post.timestamp)).all())
+		return render_template("thread.html" , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
 	else:
 		return "e404"
 
