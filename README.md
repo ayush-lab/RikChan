@@ -1,6 +1,9 @@
 # RikChan
 A simple chan framework made in python
 
+##Installation Guide
+Make a `static/media` folder in your directory. This is where media will be stored. Run `create_admin.py` to make an admin account. Go to `/_ct_` to create a board.
+
 ## Todo
 
 - A system to login/logout for janitors/mods/admins
