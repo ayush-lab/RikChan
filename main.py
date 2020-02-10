@@ -11,6 +11,7 @@ import datetime
 app = Flask("__main__" , template_folder=basedir+"/templates")
 
 app.config["UPLOAD_FOLDER"] = basedir + "/static/media"
+app.config["MAX_CONTENT_PATH"] = 4*1024*1024
 def allowed(filename):
 	print(filename)
 	return filename.split(".")[len(filename.split("."))-1] in ['jpg','jpeg','png','webm' , 'gif'] , filename.split(".")[len(filename.split("."))-1]
@@ -87,7 +88,18 @@ db.create_all()
 
 @app.route("/")
 def index():
-	return "RikChan"
+	board_list = []
+	for b in Boards.query.all():
+		board_list.append("<a href="+url_for("board_home",board=b.name)+">" + b.name + "</a>")
+	string = "<h1>RikChan</h1></br>Boards List</br>[ "
+	for b in board_list:
+		string+=b+" / "
+	if string!="<h1>RikChan</h1></br>Boards List</br>[ ":
+		string = string[0:len(string)-2]
+	string+="]"
+	return string
+
+
 
 @app.route("/login", methods=["GET" , "POST"])
 @app.route("/login/", methods=["GET" , "POST"])
@@ -126,6 +138,7 @@ def ct():
 				print("Created MEDIA")
 				db.session.add(Media(board = request.form["board"]))
 				db.session.commit()
+				#redirect(url_for("board_home" , board=request.form["board"]))
 			return render_template("ct.html")
 		else:
 			return "stfu"
