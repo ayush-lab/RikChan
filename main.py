@@ -8,6 +8,9 @@ from werkzeug.utils import secure_filename
 from hashlib import sha1
 from flask_sqlalchemy import SQLAlchemy
 import datetime
+import secrets
+import string
+
 app = Flask("__main__" , template_folder=basedir+"/templates")
 
 app.config["UPLOAD_FOLDER"] = basedir + "/static/media"
@@ -23,6 +26,8 @@ app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 db = SQLAlchemy(app)
 
+def gen(N):
+	return ''.join(secrets.choice(string.ascii_uppercase + string.digits) for i in range(N)) 
 
 class Thread(db.Model):
 	uni = db.Column(db.String(100) , primary_key = True)
@@ -146,6 +151,35 @@ def ct():
 		return "lol go away"
 
 
+@app.route("/<board>/_del_" , methods=["POST"])
+@app.route("/<board>/_del_/" ,  methods=["POST"])
+def d(board):
+	print(request.form)
+	password = request.form["password"]
+	li = list(request.form.items())
+	print(li)
+	for i in li:
+		if i[1] =="THREAD":
+			a = Thread.query.filter_by(board=board).filter_by(id=i[0]).all()[0]
+			if dec(a.password , password) or session["rank"] == 2:
+				if a.img_ext:
+					fi = a.board + str(a.img_num) + "." + a.img_ext
+					os.remove("static/media/"+fi)
+				db.session.delete(a)
+				db.session.commit()
+
+		elif i[1] == "POST":
+			a = Post.query.filter_by(board=board).filter_by(id=i[0]).all()[0]
+			if dec(a.password , password) or session["rank"] == 2:
+				if a.img_ext:
+					fi = a.board + str(a.img_num) + "." + a.img_ext
+					os.remove("static/media/"+fi)
+				db.session.delete(a)
+				db.session.commit()
+
+	return redirect(url_for("board_home" , board=board))
+
+
 @app.route("/<board>" , methods=["GET" , "POST"])
 @app.route("/<board>/", methods=["GET" , "POST"])
 def board_home(board):
@@ -236,10 +270,10 @@ def board_home(board):
 			db.session.add(t)
 			db.session.commit()
 
-			return render_template("board.html" , Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
+			return render_template("board.html" , gen=gen , Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
 
 	if bo:
-		return render_template("board.html" ,Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
+		return render_template("board.html" ,gen=gen ,Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
 	else:
 		return "e404"
 
@@ -347,10 +381,10 @@ def board_thread(board , thread_id):
 			print(bo.last_id)
 			db.session.add(p)
 			db.session.commit()
-			return render_template("thread.html" , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
+			return render_template("thread.html" ,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
 
 	if thread:
-		return render_template("thread.html" , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
+		return render_template("thread.html" ,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
 	else:
 		return "e404"
 

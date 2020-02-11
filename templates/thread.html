@@ -1,10 +1,11 @@
+<title>/{{board}}/ - RikChan</title>
 <form action = "/{{board}}/{{thread_id}}" method = "post" enctype=multipart/form-data>
          <body>
          	<center>
         <h1>/{{board}}/</h1>
          <p><input type = "text" name = "name" placeholder="name" size=50 value="anon"/></p>
          <textarea id="body" rows="4" cols="50" placeholder="body" name="body"></textarea>
-         <p><input type = "password" name = "password" placeholder="password" size=50 value="anon"/></p>
+         <p><input type = "password" name = "password" placeholder="password" size=50 value="{{gen(5)}}"/></p>
             <input type="file" name="file">
          <p1><button class="button"><b>SUMBIT</b></p1></button>
       </form>
@@ -51,23 +52,24 @@ div.transboxx {
  </head>
 
 </style>
+<form action="/{{board}}/_del_" method = "post">
 <div class="background">
   <div class="transboxx">
       
         <body>
-          <h3>
+          <input type="checkbox" name="{{thread.id}}" value="THREAD">
          <span class="left">
           {{thread.name}}       No.{{thread.id}}
         </span>
         <span class="right">
         {{thread.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}}
         </span>
-        </h3>
+        
         </br>
         <p>
             {%if thread.img_num %}
                 {%if thread.img_ext!="webm" %}
-                    <img src="../media/{{board}}{{thread.img_num}}.{{thread.img_ext}}" alt="gay"></br></br>
+                    <img src="../media/{{board}}{{thread.img_num}}.{{thread.img_ext}}" alt="{{thread.img_name}}"></br>{{thread.img_name}}</br></br>
                 {%endif%}
             {%endif%}
           {{thread.body}}
@@ -85,20 +87,20 @@ div.transboxx {
   <div class="transbox">
       
         <body>
-        	<h3>
+        	 <input type="checkbox" name="{{p.id}}" value="POST">
             <span class="left">
         	{{p.name}}       No.{{p.id}}
             </span>
             <span class="right">
             {{p.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}}
             </span>
-        </h3>
+        
         </br>
         <p>
 
             {%if p.img_num %}
                 {%if p.img_ext!="webm" %}
-                    <img src="../media/{{board}}{{p.img_num}}.{{p.img_ext}}" alt="gay"></br></br>
+                    <img src="../media/{{board}}{{p.img_num}}.{{p.img_ext}}" alt="{{p.img_name}}"></br>{{p.img_name}}</br></br>
                 {%endif%}
             {%endif%}
 
@@ -110,5 +112,12 @@ div.transboxx {
    </div>
    </div>   
    {%endfor%}
+
+Delete:
+  <input type = "password" name = "password" placeholder="password" size=50/>
+           <button class="button" value="upload"><b>SUMBIT</b></button>
+</form>
+ 
+ <center><a href="https://www.github.com/hrik2001/RikChan">RikChan</a></center>
 
  

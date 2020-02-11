@@ -1,7 +1,18 @@
 from main import *
-print("Initialising db")
-db.create_all()
-username=input("username for admin account ::")
-password=input("password for admin account ::")
-db.session.add(User(username=username , password=enc(password) , rank=2))
-db.session.commit()
+import sys
+if sys.argv[1] == "cp":
+	u = User.query.filter_by(username=sys.argv[2]).all()[0]
+	u.password = enc(sys.argv[3])
+	db.session.commit()
+elif sys.argv[1] == "cr":
+	u = User.query.filter_by(username=sys.argv[2]).all()[0]
+	u.rank = sys.argv[3]
+	db.session.commit()
+elif sys.argv[1] == "cpr":
+	u = User.query.filter_by(username=sys.argv[2]).all()[0]
+	u.password = enc(sys.argv[3])
+	u.rank = sys.argv[4]
+	db.session.commit()
+else:
+	db.session.add(User(username=sys.argv[1] , password=enc(sys.argv[2]) , rank=int(sys.argv[3])))
+	db.session.commit()
