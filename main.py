@@ -164,7 +164,7 @@ def d(board):
 			if dec(a.password , password) or session["rank"] == 2:
 				if a.img_ext:
 					fi = a.board + str(a.img_num) + "." + a.img_ext
-					os.remove("static/media/"+fi)
+					os.remove(basedir+"/static/media/"+fi)
 				db.session.delete(a)
 				db.session.commit()
 
@@ -173,7 +173,7 @@ def d(board):
 			if dec(a.password , password) or session["rank"] == 2:
 				if a.img_ext:
 					fi = a.board + str(a.img_num) + "." + a.img_ext
-					os.remove("static/media/"+fi)
+					os.remove(basedir+"/static/media/"+fi)
 				db.session.delete(a)
 				db.session.commit()
 
