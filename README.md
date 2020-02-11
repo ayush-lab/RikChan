@@ -19,7 +19,8 @@ If both needs to be changed</br>
 
 `python account.py cpr <username> <newpassword> <newrank>`
 </br>
-If you want to create a new board. Go to `/_ct_` as admin.
+If you want to create a new board. Go to `/_ct_` as admin.</br>
+If you want to post as admin or moderator simply type `<username>#<password>#<the name you want to post as`. If you just want to post as your username type `<username>#<password>`
 
 
 

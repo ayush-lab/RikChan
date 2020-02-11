@@ -85,6 +85,28 @@ class Media(db.Model):
 def tripcodegen(thing):
 	return sha1(thing.encode("utf-8")).hexdigest()[:8]
 #Create the schema
+def trip(name):
+	li = name.split("#")
+	try:
+		if User.query.filter_by(username=li[0].strip()).all()[0]:
+			u = User.query.filter_by(username=li[0].strip()).all()[0]
+			if dec(u.password ,li[1].strip()):
+				if u.rank == 1:
+					if len(li) == 2:
+						return li[0].strip()+" # "+"moderator"
+					else:
+						return li[2].strip()+" # "+"moderator"
+				if u.rank ==2:
+					if len(li) == 2:
+						return li[0].strip()+" # "+"admin"
+					else:
+						return li[2].strip()+" # "+"admin"
+	except:
+		if len(li)==1:
+			return name
+		else:
+			return li[0].strip()+" # "+tripcodegen(li[0].strip()+li[1].strip())
+
 db.create_all()
 
 
@@ -236,29 +258,29 @@ def board_home(board):
 						f = "webm"
 			#else:
 			if not f:
-				t = Thread(uni = bo.name + str(bo.last_id+1),id = bo.last_id+1 , name = request.form["name"] , body = request.form["body"] , password = enc(request.form["password"]), board = board)
+				t = Thread(uni = bo.name + str(bo.last_id+1),id = bo.last_id+1 , name = trip(request.form["name"]) , body = request.form["body"] , password = enc(request.form["password"]), board = board)
 			else:
 				print(f , "f")
 				med = Media.query.filter_by(board=board).all()[0]
 				file_name = secure_filename(file.filename)
 				if f == "gif":
-					t = Thread(img_ext = f , img_num = med.gif, img_name=file_name, uni = bo.name + str(bo.last_id+1),id=bo.last_id + 1, name=request.form["name"], body=request.form["body"],
+					t = Thread(img_ext = f , img_num = med.gif, img_name=file_name, uni = bo.name + str(bo.last_id+1),id=bo.last_id + 1, name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "jpg":
 					t = Thread(img_ext=f, img_num=med.jpg,uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
-							   name=request.form["name"], body=request.form["body"],
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "jpeg":
 					t = Thread(img_ext=f, img_num=med.jpeg, uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
-							   name=request.form["name"], body=request.form["body"],
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "png":
 					t = Thread(img_ext=f, img_num=med.png, uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
-							   name=request.form["name"], body=request.form["body"],
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "webm":
 					t = Thread(img_ext=f, img_num=med.webm ,uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
-							   name=request.form["name"], body=request.form["body"],
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 
 
@@ -331,7 +353,7 @@ def board_thread(board , thread_id):
 						f = "webm"
 			# else:
 			if not f:
-				p = Post(uni=bo.name + str(bo.last_id + 1), thread_id = thread_id, id=bo.last_id + 1, name=request.form["name"],
+				p = Post(uni=bo.name + str(bo.last_id + 1), thread_id = thread_id, id=bo.last_id + 1, name=trip(request.form["name"]),
 						   body=request.form["body"], password=enc(request.form["password"]), board=board)
 			else:
 				print(f, "f")
@@ -339,27 +361,27 @@ def board_thread(board , thread_id):
 				file_name = secure_filename(file.filename)
 				if f == "gif":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.gif, img_name=file_name, uni=bo.name + str(bo.last_id + 1),
-							   id=bo.last_id + 1, name=request.form["name"], body=request.form["body"],
+							   id=bo.last_id + 1, name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "jpg":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.jpg, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
 							   id=bo.last_id + 1,
-							   name=request.form["name"], body=request.form["body"],
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "jpeg":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.jpeg, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
 							   id=bo.last_id + 1,
-							   name=request.form["name"], body=request.form["body"],
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "png":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.png, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
 							   id=bo.last_id + 1,
-							   name=request.form["name"], body=request.form["body"],
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "webm":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.webm, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
 							   id=bo.last_id + 1,
-							   name=request.form["name"], body=request.form["body"],
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 
 			#print(bo.last_id)
@@ -374,10 +396,11 @@ def board_thread(board , thread_id):
 			print(bo.last_id)
 			bo.last_id = bo.last_id + 1
 			db.session.commit()
-			thread.bumptime = datetime.datetime.utcnow()
-			db.session.commit()
-			thread.bump = thread.bump+1
-			db.session.commit()
+			if request.form["options"].lower() != "sage" or thread.bump==500:
+				thread.bumptime = datetime.datetime.utcnow()
+				db.session.commit()
+				thread.bump = thread.bump+1
+				db.session.commit()
 			print(bo.last_id)
 			db.session.add(p)
 			db.session.commit()
