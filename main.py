@@ -102,7 +102,7 @@ def index():
 	if string!="<h1>RikChan</h1></br>Boards List</br>[ ":
 		string = string[0:len(string)-2]
 	string+="]"
-	return string
+	return "<title>RikChan</title>\n<center>"+string+"\n</center>"
 
 
 
