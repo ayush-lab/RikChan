@@ -9,12 +9,17 @@ This code generates a new account (Substitute values of username , password and 
 - 1 represents moderator
 - 0 represents janitor
 </br>
-If you want to change password of already existing account. Type</br>
+If you want to change password of already existing account. Type</br></br>
+
 `python account.py cp <username> <newpassword>`
-Similarly for new rank id</br>
+Similarly for new rank id</br></br>
+
 `python account.py cr <username> <newrank>`
-If both needs to be changed</br>
-`python account.py cr <username> <newpassword> <newrank>`
+If both needs to be changed</br></br>
+
+`python account.py cpr <username> <newpassword> <newrank>`
+</br>
+If you want to create a new board. Go to `/_ct_` as admin.
 
 
 
