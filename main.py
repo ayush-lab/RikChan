@@ -217,6 +217,12 @@ def d(board):
 				if a.img_ext:
 					fi = a.board + str(a.img_num) + "." + a.img_ext
 					os.remove(basedir+"/static/media/"+fi)
+				b = Post.query.filter_by(board=board).filter_by(thread_id=i[0]).all()
+				for post in b:
+					if post.img_ext:
+						fi = post.board + str(post.img_num) + "." + post.img_ext
+						os.remove(basedir+"/static/media/"+fi)
+					db.session.delete(post)
 				db.session.delete(a)
 				db.session.commit()
 
