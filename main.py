@@ -90,7 +90,7 @@ def trip(name):
 	try:
 		if User.query.filter_by(username=li[0].strip()).all()[0]:
 			u = User.query.filter_by(username=li[0].strip()).all()[0]
-			if dec(u.password ,li[1].strip()):
+			if dec(u.password ,li[1].strip()) and session["username"]==u.username:
 				if u.rank == 1:
 					if len(li) == 2:
 						return li[0].strip()+" # "+"moderator"
@@ -101,6 +101,8 @@ def trip(name):
 						return li[0].strip()+" # "+"admin"
 					else:
 						return li[2].strip()+" # "+"admin"
+			else:
+				return li[0].strip()+" # "+tripcodegen(li[0].strip()+li[1].strip())
 	except:
 		if len(li)==1:
 			return name
