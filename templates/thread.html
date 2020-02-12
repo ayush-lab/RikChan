@@ -73,7 +73,7 @@ div.transboxx {
                     <img src="../media/{{board}}{{thread.img_num}}.{{thread.img_ext}}" alt="{{thread.img_name}}"></br>{{thread.img_name}}</br></br>
                 {%endif%}
             {%endif%}
-          {{thread.body}}
+          {{thread.body | safe}}
         </p>
         </body>
        
@@ -105,7 +105,7 @@ div.transboxx {
                 {%endif%}
             {%endif%}
 
-        	{{p.body}}
+        	{{p.body | safe}}
         </p>
         </body>
        

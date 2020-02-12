@@ -107,6 +107,31 @@ def trip(name):
 		else:
 			return li[0].strip()+" # "+tripcodegen(li[0].strip()+li[1].strip())
 
+def green(text):
+	i=0
+	g=0
+	ret = ""
+	while i<len(text):
+		if text[i] == ">":
+			if text[i-1]!=">" and text[i+1]!=">":
+				if not g:
+					if not i or text[i-1]=="\n":
+						g=1
+						ret+='<font color="green">'
+		elif text[i] == "\n":
+			if g==1:
+				g=0
+				ret+="</font>"
+			ret+="</br>"
+		elif i == len(text)-1:
+			if g==1:
+				ret+=text[i]+"</font>"
+				return ret
+		ret+=text[i]
+		i+=1
+	return ret
+
+
 db.create_all()
 
 
@@ -258,29 +283,29 @@ def board_home(board):
 						f = "webm"
 			#else:
 			if not f:
-				t = Thread(uni = bo.name + str(bo.last_id+1),id = bo.last_id+1 , name = trip(request.form["name"]) , body = request.form["body"] , password = enc(request.form["password"]), board = board)
+				t = Thread(uni = bo.name + str(bo.last_id+1),id = bo.last_id+1 , name = trip(request.form["name"]) , body=green(request.form["body"]) , password = enc(request.form["password"]), board = board)
 			else:
 				print(f , "f")
 				med = Media.query.filter_by(board=board).all()[0]
 				file_name = secure_filename(file.filename)
 				if f == "gif":
-					t = Thread(img_ext = f , img_num = med.gif, img_name=file_name, uni = bo.name + str(bo.last_id+1),id=bo.last_id + 1, name=trip(request.form["name"]), body=request.form["body"],
+					t = Thread(img_ext = f , img_num = med.gif, img_name=file_name, uni = bo.name + str(bo.last_id+1),id=bo.last_id + 1, name=trip(request.form["name"]), body=green(request.form["body"]),
 							   password=enc(request.form["password"]), board=board)
 				elif f == "jpg":
 					t = Thread(img_ext=f, img_num=med.jpg,uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=request.form["body"],
+							   name=trip(request.form["name"]), body=green(request.form["body"]),
 							   password=enc(request.form["password"]), board=board)
 				elif f == "jpeg":
 					t = Thread(img_ext=f, img_num=med.jpeg, uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=request.form["body"],
+							   name=trip(request.form["name"]), body=green(request.form["body"]),
 							   password=enc(request.form["password"]), board=board)
 				elif f == "png":
 					t = Thread(img_ext=f, img_num=med.png, uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=request.form["body"],
+							   name=trip(request.form["name"]), body=green(request.form["body"]),
 							   password=enc(request.form["password"]), board=board)
 				elif f == "webm":
 					t = Thread(img_ext=f, img_num=med.webm ,uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=request.form["body"],
+							   name=trip(request.form["name"]), body=green(request.form["body"]),
 							   password=enc(request.form["password"]), board=board)
 
 
@@ -354,34 +379,34 @@ def board_thread(board , thread_id):
 			# else:
 			if not f:
 				p = Post(uni=bo.name + str(bo.last_id + 1), thread_id = thread_id, id=bo.last_id + 1, name=trip(request.form["name"]),
-						   body=request.form["body"], password=enc(request.form["password"]), board=board)
+						   body=green(request.form["body"]), password=enc(request.form["password"]), board=board)
 			else:
 				print(f, "f")
 				med = Media.query.filter_by(board=board).all()[0]
 				file_name = secure_filename(file.filename)
 				if f == "gif":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.gif, img_name=file_name, uni=bo.name + str(bo.last_id + 1),
-							   id=bo.last_id + 1, name=trip(request.form["name"]), body=request.form["body"],
+							   id=bo.last_id + 1, name=trip(request.form["name"]), body=green(request.form["body"]),
 							   password=enc(request.form["password"]), board=board)
 				elif f == "jpg":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.jpg, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
 							   id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=request.form["body"],
+							   name=trip(request.form["name"]), body=green(request.form["body"]),
 							   password=enc(request.form["password"]), board=board)
 				elif f == "jpeg":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.jpeg, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
 							   id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=request.form["body"],
+							   name=trip(request.form["name"]), body=green(request.form["body"]),
 							   password=enc(request.form["password"]), board=board)
 				elif f == "png":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.png, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
 							   id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=request.form["body"],
+							   name=trip(request.form["name"]), body=green(request.form["body"]),
 							   password=enc(request.form["password"]), board=board)
 				elif f == "webm":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.webm, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
 							   id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=request.form["body"],
+							   name=trip(request.form["name"]), body=green(request.form["body"]),
 							   password=enc(request.form["password"]), board=board)
 
 			#print(bo.last_id)

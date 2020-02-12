@@ -50,6 +50,7 @@ div.transboxx {
 
  </head>
 </style>
+<center><a href="/">Go back to Main Page</a></center></br>
 <form action="/{{board}}/_del_" method = "post">
 
 {%for t in threads%}
@@ -76,7 +77,7 @@ div.transboxx {
                     <img src="../media/{{board}}{{t.img_num}}.{{t.img_ext}}" alt="{{t.img_name}}"><br>{{t.img_name}}</br></br>
                 {%endif%}
             {%endif%}
-               {{t.body}}
+               {{t.body | safe}}
         </p>
         </body>
        
@@ -102,7 +103,7 @@ div.transboxx {
                 {%endif%}
             {%endif%}
 
-        	{{p.body}}
+        	{{p.body | safe}}
         </p>
         </body>
        
