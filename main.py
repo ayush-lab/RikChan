@@ -117,17 +117,22 @@ def green(text):
 				if not g:
 					if not i or text[i-1]=="\n":
 						g=1
-						ret+='<font color="green">'
+						ret+='<font color="green">'+"&gt;"
+		elif text[i] == "<":
+			ret += "&lt;"
 		elif text[i] == "\n":
 			if g==1:
 				g=0
 				ret+="</font>"
 			ret+="</br>"
-		elif i == len(text)-1:
+		elif text[i] == " ":
+			ret += "&nbsp;"
+		else:
+			ret+=text[i]
+		if i == len(text)-1:
 			if g==1:
 				ret+=text[i]+"</font>"
 				return ret
-		ret+=text[i]
 		i+=1
 	return ret
 
