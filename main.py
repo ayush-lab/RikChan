@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 import datetime
 import secrets
 import string
+from flask_migrate import Migrate
 
 app = Flask("__main__" , template_folder=basedir+"/templates")
 
@@ -25,6 +26,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 def gen(N):
 	return ''.join(secrets.choice(string.ascii_uppercase + string.digits) for i in range(N)) 
@@ -122,6 +124,12 @@ def green(text):
 						ret+='<font color="green">'+"&gt;"
 		elif text[i] == "<":
 			ret += "&lt;"
+		elif text[i] == "\"":
+			ret+="&quot;"
+		elif text[i] == "\'":
+			ret+="&apos;"
+		elif text[i] == "&":
+			ret+="&amp;"
 		elif text[i] == "\n":
 			if g==1:
 				g=0
@@ -133,16 +141,13 @@ def green(text):
 			ret+=text[i]
 		if i == len(text)-1:
 			if g==1:
-				ret+=text[i]+"</font>"
+				ret+="</font>"
 				return ret
 		i+=1
 	return ret.strip()
 
 
-db.create_all()
-
-
-
+#db.create_all()
 
 
 @app.route("/")
