@@ -199,15 +199,18 @@ def index():
 	board_list = []
 	for b in Boards.query.all():
 		board_list.append("<a href="+url_for("board_home",board=b.name)+">" + b.name + "</a>")
-	string = "<h1>RikChan</h1></br>Boards List</br>[ "
+	string = "[ "
 	for b in board_list:
 		string+=b+" / "
-	if string!="<h1>RikChan</h1></br>Boards List</br>[ ":
+	if string!="[ ":
 		string = string[0:len(string)-2]
 	string+="]"
-	return "<title>RikChan</title>\n<center>"+string+"\n</center>"
+	return render_template("main.html",boards=string)
 
 
+@app.route("/rules")
+def rules():
+	return render_template("rules.html")
 
 @app.route("/login", methods=["GET" , "POST"])
 @app.route("/login/", methods=["GET" , "POST"])
