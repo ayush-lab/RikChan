@@ -277,6 +277,8 @@ def d(board):
 						fi = post.board + str(post.img_num) + "." + post.img_ext
 						os.remove(basedir+"/static/media/"+fi)
 					db.session.delete(post)
+				for i in refer.query.filter_by(own_id=a.id).all():
+					db.session.delete(i)
 				db.session.delete(a)
 				db.session.commit()
 
@@ -286,6 +288,8 @@ def d(board):
 				if a.img_ext:
 					fi = a.board + str(a.img_num) + "." + a.img_ext
 					os.remove(basedir+"/static/media/"+fi)
+				for i in refer.query.filter_by(own_id=a.id).all():
+					db.session.delete(i)
 				db.session.delete(a)
 				db.session.commit()
 
