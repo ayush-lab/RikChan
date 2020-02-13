@@ -73,8 +73,13 @@ div.transboxx {
                     <img src="../media/{{board}}{{thread.img_num}}.{{thread.img_ext}}" alt="{{thread.img_name}}"></br>{{thread.img_name}}</br></br>
                 {%endif%}
             {%endif%}
-          {{thread.body | safe}}
-        </p>
+          {{thread.body | safe}}</br></p>
+          <font size="2">
+          {%for a in refer.query.filter_by(board=board).filter_by(replied_to=thread.id).all()%}
+          >>{{a.own_id}}
+        {%endfor%}
+      </font>
+        
         </body>
        
 
@@ -105,8 +110,13 @@ div.transboxx {
                 {%endif%}
             {%endif%}
 
-        	{{p.body | safe}}
-        </p>
+        	{{p.body | safe}}</br></p>
+          <font size="2">
+          {%for a in refer.query.filter_by(board=board).filter_by(replied_to=p.id).all()%}
+          >>{{a.own_id}}
+        {%endfor%}
+      </font>
+        
         </body>
        
 

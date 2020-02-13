@@ -10,7 +10,6 @@ from flask_sqlalchemy import SQLAlchemy
 import datetime
 import secrets
 import string
-from flask_migrate import Migrate
 
 app = Flask("__main__" , template_folder=basedir+"/templates")
 
@@ -26,7 +25,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
 
 def gen(N):
 	return ''.join(secrets.choice(string.ascii_uppercase + string.digits) for i in range(N)) 
@@ -44,7 +42,7 @@ class Thread(db.Model):
 	body = db.Column(db.String(500))
 	img_ext = db.Column(db.String(10))
 	password = db.Column(db.String(500))
-	#pinned = db.Column(db.Integer)  #is it pinned or not? 
+	pinned = db.Column(db.Integer)  #is it pinned or not? 
 
 class Post(db.Model):
 	uni = db.Column(db.String(100), primary_key=True)
@@ -65,6 +63,8 @@ class Boards(db.Model):
 	name = db.Column(db.String(50), primary_key=True)
 	desc = db.Column(db.String(500))
 	last_id = db.Column(db.Integer , default = 0) #to generate new id
+	max_posts_displayed = db.Column(db.Integer , default = 2) #maximum number of posts displayed under a thread when browsing /board
+	bump_limit = db.Column(db.Integer , default = 500)
 
 class User(db.Model):
 	username = db.Column(db.String(50), primary_key=True)
@@ -83,6 +83,12 @@ class Media(db.Model):
 	png = db.Column(db.Integer, default=0)
 	gif = db.Column(db.Integer, default=0)
 	webm = db.Column(db.Integer, default=0)
+
+class refer(db.Model):
+	uni = db.Column(db.String(500), primary_key=True)
+	board = db.Column(db.String(50))
+	replied_to = db.Column(db.Integer)
+	own_id = db.Column(db.Integer)
 
 def tripcodegen(thing):
 	return sha1(thing.encode("utf-8")).hexdigest()[:8]
@@ -117,11 +123,16 @@ def green(text):
 	ret = ""
 	while i<len(text):
 		if text[i] == ">":
-			if text[i-1]!=">" and text[i+1]!=">":
-				if not g:
-					if not i or text[i-1]=="\n":
-						g=1
-						ret+='<font color="green">'+"&gt;"
+			try:
+				if text[i-1]!=">" and text[i+1]!=">":
+					if not g:
+						if not i or text[i-1]=="\n":
+							g=1
+							ret+='<font color="green">'+"&gt;"
+				else:
+					ret+="&gt;"
+			except:
+				ret+="&gt;"
 		elif text[i] == "<":
 			ret += "&lt;"
 		elif text[i] == "\"":
@@ -145,6 +156,39 @@ def green(text):
 				return ret
 		i+=1
 	return ret.strip()
+
+def reply_finder(text , id , board):
+	i = 0
+	link=""
+	link_=0
+	links=[]
+	while i<len(text):
+		if text[i]==">":
+			if not link_:
+				try:
+					if text[i+1]==">":
+						link_=1
+				except:
+					pass
+		elif text[i]==" " or i == len(text)-1:
+			if link_:
+				link_=0
+				links.append(link+text[i])
+				link=""
+		elif link_:
+			link+=text[i]
+
+		i+=1
+	print("LINKS" , links)
+	for stuff in links:
+		try:
+			print(board+" "+str(id)+" "+stuff)
+			db.session.add(refer(uni=board+" "+str(id)+" "+stuff , board = board , replied_to = int(stuff) , own_id = id))
+			db.session.commit()
+		except:
+			pass
+		
+
 
 
 #db.create_all()
@@ -301,11 +345,13 @@ def board_home(board):
 						f = "webm"
 			#else:
 			if not f:
+				reply_finder(request.form["body"] , bo.last_id+1 , board)
 				t = Thread(uni = bo.name + str(bo.last_id+1),id = bo.last_id+1 , name = trip(request.form["name"]) , body=green(request.form["body"]) , password = enc(request.form["password"]), board = board)
 			else:
 				print(f , "f")
 				med = Media.query.filter_by(board=board).all()[0]
 				file_name = secure_filename(file.filename)
+				reply_finder(request.form["body"] , bo.last_id+1 , board)
 				if f == "gif":
 					t = Thread(img_ext = f , img_num = med.gif, img_name=file_name, uni = bo.name + str(bo.last_id+1),id=bo.last_id + 1, name=trip(request.form["name"]), body=green(request.form["body"]),
 							   password=enc(request.form["password"]), board=board)
@@ -335,10 +381,10 @@ def board_home(board):
 			db.session.add(t)
 			db.session.commit()
 
-			return render_template("board.html" , gen=gen , Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
+			return render_template("board.html" ,refer=refer,bo=bo, gen=gen , Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
 
 	if bo:
-		return render_template("board.html" ,gen=gen ,Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
+		return render_template("board.html" ,refer=refer,bo=bo,gen=gen ,Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
 	else:
 		return "e404"
 
@@ -396,10 +442,12 @@ def board_thread(board , thread_id):
 						f = "webm"
 			# else:
 			if not f:
+				reply_finder(request.form["body"] , bo.last_id+1 , bo.name)
 				p = Post(uni=bo.name + str(bo.last_id + 1), thread_id = thread_id, id=bo.last_id + 1, name=trip(request.form["name"]),
 						   body=green(request.form["body"]), password=enc(request.form["password"]), board=board)
 			else:
 				print(f, "f")
+				reply_finder(request.form["body"] , bo.last_id+1 , bo.name)
 				med = Media.query.filter_by(board=board).all()[0]
 				file_name = secure_filename(file.filename)
 				if f == "gif":
@@ -439,7 +487,7 @@ def board_thread(board , thread_id):
 			print(bo.last_id)
 			bo.last_id = bo.last_id + 1
 			db.session.commit()
-			if request.form["options"].lower() != "sage" or thread.bump==500:
+			if request.form["options"].lower() != "sage" or thread.bump==bo.bump_limit:
 				thread.bumptime = datetime.datetime.utcnow()
 				db.session.commit()
 				thread.bump = thread.bump+1
@@ -447,10 +495,10 @@ def board_thread(board , thread_id):
 			print(bo.last_id)
 			db.session.add(p)
 			db.session.commit()
-			return render_template("thread.html" ,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
+			return render_template("thread.html" ,refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
 
 	if thread:
-		return render_template("thread.html" ,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
+		return render_template("thread.html" ,refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
 	else:
 		return "e404"
 

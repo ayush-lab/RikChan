@@ -79,13 +79,18 @@ div.transboxx {
             {%endif%}
                {{t.body | safe}}
         </p>
+        <font size="2">
+        {%for a in refer.query.filter_by(board=board).filter_by(replied_to=t.id).all()%}
+          >>{{a.own_id}}
+        {%endfor%}
+      </font>
         </body>
        
 
    </div>
    </div> 
 
-{%for p in Post.query.filter_by(board=board).filter_by(thread_id = t.id).all()[::-1][0:2][::-1]%}
+{%for p in Post.query.filter_by(board=board).filter_by(thread_id = t.id).all()[::-1][0:bo.max_posts_displayed][::-1]%}
    <div class="background">
   <div class="transbox">
       
@@ -103,8 +108,14 @@ div.transboxx {
                 {%endif%}
             {%endif%}
 
-        	{{p.body | safe}}
-        </p>
+        	{{p.body | safe}}</br></p>
+          <font size="2">
+          {%for a in refer.query.filter_by(board=board).filter_by(replied_to=p.id).all()%}
+          >>{{a.own_id}}
+        {%endfor%}
+
+      </font>
+        
         </body>
        
 
