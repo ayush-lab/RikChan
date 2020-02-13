@@ -102,12 +102,12 @@ def trip(name):
 					else:
 						return li[2].strip()+" # "+"admin"
 			else:
-				return li[0].strip()+"!"+tripcodegen(li[0].strip()+li[1].strip())
+				return li[0].strip()+" !"+tripcodegen(li[0].strip()+li[1].strip())
 	except:
 		if len(li)==1:
 			return name
 		else:
-			return li[0].strip()+"!"+tripcodegen(li[0].strip()+li[1].strip())
+			return li[0].strip()+" !"+tripcodegen(li[0].strip()+li[1].strip())
 
 def green(text):
 	i=0
