@@ -170,7 +170,7 @@ def reply_finder(text , id , board):
 						link_=1
 				except:
 					pass
-		elif text[i]==" " or i == len(text)-1:
+		elif text[i]==" " or i == len(text)-1 or text[i]=="\n":
 			if link_:
 				link_=0
 				links.append(link+text[i])
