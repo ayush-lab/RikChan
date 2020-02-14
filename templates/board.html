@@ -1,7 +1,7 @@
 <title>/{{board}}/ - RikChan</title>
 <form action = "/{{board}}" method = "post" enctype=multipart/form-data><body style="background-color:#FFFFF0">
          <body>
-         	<center>
+          <center>
         <h1>/{{board}}/</h1>
         <p1>{{desc}}</p1>
          <p><input type = "text" name = "name" placeholder="name" size=50 value="anon"/></p>
@@ -11,6 +11,8 @@
 
          <p1><button class="button" value="upload"><b>SUMBIT</b></p1></button>
       </form>
+    </br></br>
+      <font size="2">jpeg , jpg , gif , png and webm below the size of <b>4mb</b> is allowed. Read <a href="/rules">Rules</a> before posting </font>
       </center>
    </body>
 
@@ -34,18 +36,23 @@
 div.transbox {
   background-color: #f2edeb;
   border: 1px solid black;
-  
+  overflow-wrap: break-word;
+
    /* For IE8 and earlier */
 }
 
 div.transboxx {
   background-color: #F1E0D7;
   border: 1px solid black;
-  
+  overflow-wrap: break-word;
+
   /* For IE8 and earlier */
 }
 
-
+img {
+    width:150px;
+    
+    }
 
 
  </head>
@@ -57,24 +64,32 @@ div.transboxx {
 
 <div class="background">
   <div class="transboxx">
-      
-        <body>
+
+
           <input type="checkbox" name="{{t.id}}" value="THREAD">
-        	
-        	<span class="left">{{t.name}}       No.{{t.id}}</span> <span class="right">{{t.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}}</span>
-        
+
+          <span class="left">{{t.name}}       No.{{t.id}}</span> <span class="right">{{t.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}}</span>
+
         </br>
         <p>
-        	<a href="/{{board}}/{{t.id}}"> Reply</a>
+          <a href="/{{board}}/{{t.id}}"> Reply</a>
 
         </p>
 
 
         <p>
-        	
+
             {%if t.img_num %}
                 {%if t.img_ext!="webm" %}
-                    <img src="../media/{{board}}{{t.img_num}}.{{t.img_ext}}" alt="{{t.img_name}}"><br>{{t.img_name}}</br></br>
+                    <img src="../media/{{board}}{{t.img_num}}.{{t.img_ext}}" alt="{{t.img_name}}" id="{{board}}{{t.img_num}}.{{t.img_ext}}" onclick="zoomzoom('{{board}}{{t.img_num}}.{{t.img_ext}}')"></br><a href="../media/{{board}}{{t.img_num}}.{{t.img_ext}}">
+                    {{t.img_name}}</a></br></br>
+                {%else%}
+                <video width="320" height="240" controls>
+  
+                  <source src="../media/{{board}}{{t.img_num}}.{{t.img_ext}}" type="video/webm">
+  
+               </video></br><a href="../media/{{board}}{{t.img_num}}.{{t.img_ext}}">
+                    {{t.img_name}}</a></br></br>
                 {%endif%}
             {%endif%}
                {{t.body | safe}}
@@ -84,40 +99,58 @@ div.transboxx {
           >>{{a.own_id}}
         {%endfor%}
       </font>
-        </body>
-       
+
+
 
    </div>
-   </div> 
+   </div>
+
+<script type='text/javascript'>
+    function zoomzoom(id) {
+
+    if(document.getElementById(id).style.width=="500px"){document.getElementById(id).style.width="150px";}else{document.getElementById(id).style.width="500px"}
+
+    
+    }       
+</script>
+
 
 {%for p in Post.query.filter_by(board=board).filter_by(thread_id = t.id).all()[::-1][0:bo.max_posts_displayed][::-1]%}
    <div class="background">
   <div class="transbox">
-      
-        <body>
+
+
           <input type="checkbox" name="{{p.id}}" value="POST">
-        	
-        	<span class="left">{{p.name}}    No.{{p.id}}</span> <span class="right">{{p.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}}</span>
-        
+
+          <span class="left">{{p.name}}    No.{{p.id}}</span> <span class="right">{{p.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}}</span>
+
         </br>
         <p>
 
             {%if p.img_num %}
                 {%if p.img_ext!="webm" %}
-                    <img src="../media/{{board}}{{p.img_num}}.{{p.img_ext}}" alt="{{p.img_name}}"></br>{{p.img_name}}</br></br>
+                    <img src="../media/{{board}}{{p.img_num}}.{{p.img_ext}}" alt="{{p.img_name}}" id="{{board}}{{p.img_num}}.{{p.img_ext}}" onclick="zoomzoom('{{board}}{{p.img_num}}.{{p.img_ext}}')"></br><a href="../media/{{board}}{{p.img_num}}.{{p.img_ext}}">
+                    {{p.img_name}}</a></br></br>
+                {%else%}
+                <video width="320" height="240" controls>
+  
+                  <source src="../media/{{board}}{{p.img_num}}.{{p.img_ext}}" type="video/webm">
+  
+               </video></br><a href="../media/{{board}}{{p.img_num}}.{{p.img_ext}}">
+                    {{p.img_name}}</a></br></br>
                 {%endif%}
             {%endif%}
 
-        	{{p.body | safe}}</br></p>
+          {{p.body | safe}}</br></p>
           <font size="2">
           {%for a in refer.query.filter_by(board=board).filter_by(replied_to=p.id).all()%}
           >>{{a.own_id}}
         {%endfor%}
 
       </font>
-        
-        </body>
-       
+
+
+
 
    </div>
    </div>
@@ -131,5 +164,5 @@ Delete:
   <input type = "password" name = "password" placeholder="password" size=50/>
            <button class="button" value="upload"><b>SUMBIT</b></button>
 </form>
- 
+
  <center><a href="https://www.github.com/hrik2001/RikChan">RikChan</a></center></body>
