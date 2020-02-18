@@ -187,6 +187,47 @@ def reply_finder(text , id , board):
 			db.session.commit()
 		except:
 			pass
+
+def url_maker(number , board):
+	if Thread.query.filter_by(board=board , id=number).all():
+		return url_for("board_thread" ,board=board , thread_id=number)
+	else:
+		a = Post.query.filter_by(board=board , id=number).all()[0]
+		return url_for("board_thread" ,board=board , thread_id = a.thread_id , _anchor = a.id)
+
+def link_in_text(text , board):
+	print("hi")
+	i = 0
+	link=""
+	link_=0
+	links=[]
+	while i<len(text):
+		if text[i]==">":
+			if not link_:
+				try:
+					if text[i+1]==">":
+						link_=1
+				except:
+					pass
+		elif text[i]==" " or i == len(text)-1 or text[i]=="\n":
+			if link_:
+				link_=0
+				links.append(link+text[i])
+				link=""
+		elif link_:
+			link+=text[i]
+
+		i+=1
+	print(links)
+	print(text)
+	for link in links:
+		if link.isdigit():
+			text = text.replace(">>"+link , "<a href=\""+url_maker(int(link) , board)+"\">"+">>"+link+"</a>")
+		else:
+			text = text.replace(">>"+link , "<a href=\""+link+"\">"+">>"+link+"</a>")
+	print("hii")
+	print(text)
+	return text
 		
 
 
@@ -404,10 +445,10 @@ def board_home(board):
 			db.session.add(t)
 			db.session.commit()
 
-			return render_template("board.html" ,anon=session["name"],refer=refer,bo=bo, gen=gen , Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
+			return render_template("board.html" ,url_maker=url_maker,anon=session["name"],refer=refer,bo=bo, gen=gen , Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
 
 	if bo:
-		return render_template("board.html" ,anon=session["name"],refer=refer,bo=bo,gen=gen ,Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
+		return render_template("board.html" ,url_maker=url_maker,anon=session["name"],refer=refer,bo=bo,gen=gen ,Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
 	else:
 		return "e404"
 
@@ -479,7 +520,7 @@ def board_thread(board , thread_id):
 				file_name = secure_filename(file.filename)
 				if f == "gif":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.gif, img_name=file_name, uni=bo.name + str(bo.last_id + 1),
-							   id=bo.last_id + 1, name=trip(request.form["name"]), body=green(request.form["body"]),
+							   id=bo.last_id + 1, name=trip(request.form["name"]),body=green(request.form["body"]),
 							   password=enc(request.form["password"]), board=board)
 				elif f == "jpg":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.jpg, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
@@ -499,7 +540,7 @@ def board_thread(board , thread_id):
 				elif f == "webm":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.webm, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
 							   id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=green(request.form["body"]),
+							   name=trip(request.form["name"]),body=green(request.form["body"]),
 							   password=enc(request.form["password"]), board=board)
 
 			#print(bo.last_id)
@@ -522,10 +563,10 @@ def board_thread(board , thread_id):
 			#print(bo.last_id)
 			db.session.add(p)
 			db.session.commit()
-			return render_template("thread.html" ,anon=session["name"],refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
+			return render_template("thread.html" ,url_maker=url_maker,anon=session["name"],refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
 
 	if thread:
-		return render_template("thread.html" ,anon=session["name"],refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
+		return render_template("thread.html" ,url_maker=url_maker,anon=session["name"],refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
 	else:
 		return "e404"
 
