@@ -196,6 +196,8 @@ def reply_finder(text , id , board):
 
 @app.route("/")
 def index():
+	if "name" not in session:
+		session["name"]="anon"
 	board_list = []
 	for b in Boards.query.all():
 		board_list.append("<a href="+url_for("board_home",board=b.name)+">" + b.name + "</a>")
@@ -210,11 +212,15 @@ def index():
 
 @app.route("/rules")
 def rules():
+	if "name" not in session:
+		session["name"]="anon"
 	return render_template("rules.html")
 
 @app.route("/login", methods=["GET" , "POST"])
 @app.route("/login/", methods=["GET" , "POST"])
 def login():
+	if "name" not in session:
+		session["name"]="anon"
 	if request.method == "POST":
 		u = User.query.filter_by(username = request.form["username"]).all()[0]
 		if dec(u.password , request.form["password"]):
@@ -228,6 +234,8 @@ def login():
 @app.route("/logout")
 @app.route("/logout/")
 def logout():
+	if "name" not in session:
+		session["name"]="anon"
 	if "username" in session:
 		session.pop("username")
 		session.pop("rank")
@@ -240,6 +248,8 @@ def serve(p):
 @app.route("/_ct_", methods=["GET" , "POST"])
 @app.route("/_ct_/", methods=["GET" , "POST"])
 def ct():
+	if "name" not in session:
+		session["name"]="anon"
 	if "rank" in session:
 		if session["rank"] == 2:
 			if request.method == "POST":
@@ -260,6 +270,8 @@ def ct():
 @app.route("/<board>/_del_" , methods=["POST"])
 @app.route("/<board>/_del_/" ,  methods=["POST"])
 def d(board):
+	if "name" not in session:
+		session["name"]="anon"
 	#print(request.form)
 	password = request.form["password"]
 	li = list(request.form.items())
@@ -299,6 +311,8 @@ def d(board):
 @app.route("/<board>" , methods=["GET" , "POST"])
 @app.route("/<board>/", methods=["GET" , "POST"])
 def board_home(board):
+	if "name" not in session:
+		session["name"]="anon"
 	#Thread.query.filter_by(board="meta").all()
 	#from sqlalchemy import desc
 	#Thread.query.order_by(desc(Thread.timestamp)).all() order by time from timestamp
@@ -352,10 +366,12 @@ def board_home(board):
 						f = "webm"
 			#else:
 			if not f:
+				session["name"]=request.form["name"]
 				reply_finder(request.form["body"] , bo.last_id+1 , board)
 				t = Thread(uni = bo.name + str(bo.last_id+1),id = bo.last_id+1 , name = trip(request.form["name"]) , body=green(request.form["body"]) , password = enc(request.form["password"]), board = board)
 			else:
 				#print(f , "f")
+				session["name"]=request.form["name"]
 				med = Media.query.filter_by(board=board).all()[0]
 				file_name = secure_filename(file.filename)
 				reply_finder(request.form["body"] , bo.last_id+1 , board)
@@ -388,16 +404,18 @@ def board_home(board):
 			db.session.add(t)
 			db.session.commit()
 
-			return render_template("board.html" ,refer=refer,bo=bo, gen=gen , Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
+			return render_template("board.html" ,anon=session["name"],refer=refer,bo=bo, gen=gen , Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
 
 	if bo:
-		return render_template("board.html" ,refer=refer,bo=bo,gen=gen ,Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
+		return render_template("board.html" ,anon=session["name"],refer=refer,bo=bo,gen=gen ,Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
 	else:
 		return "e404"
 
 @app.route("/<board>/<int:thread_id>/" , methods=["GET" , "POST"])
 @app.route("/<board>/<int:thread_id>", methods=["GET" , "POST"])
 def board_thread(board , thread_id):
+	if "name" not in session:
+		session["name"]="anon"
 	#Thread.query.filter_by(board="meta").all()
 	#from sqlalchemy import desc
 	#Thread.query.order_by(desc(Thread.timestamp)).all() order by time from timestamp
@@ -450,11 +468,13 @@ def board_thread(board , thread_id):
 			# else:
 			if not f:
 				reply_finder(request.form["body"] , bo.last_id+1 , bo.name)
+				session["name"]=request.form["name"]
 				p = Post(uni=bo.name + str(bo.last_id + 1), thread_id = thread_id, id=bo.last_id + 1, name=trip(request.form["name"]),
 						   body=green(request.form["body"]), password=enc(request.form["password"]), board=board)
 			else:
 				#print(f, "f")
 				reply_finder(request.form["body"] , bo.last_id+1 , bo.name)
+				session["name"]=request.form["name"]
 				med = Media.query.filter_by(board=board).all()[0]
 				file_name = secure_filename(file.filename)
 				if f == "gif":
@@ -502,10 +522,10 @@ def board_thread(board , thread_id):
 			#print(bo.last_id)
 			db.session.add(p)
 			db.session.commit()
-			return render_template("thread.html" ,refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
+			return render_template("thread.html" ,anon=session["name"],refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
 
 	if thread:
-		return render_template("thread.html" ,refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
+		return render_template("thread.html" ,anon=session["name"],refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
 	else:
 		return "e404"
 
