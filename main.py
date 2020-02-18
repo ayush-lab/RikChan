@@ -16,7 +16,7 @@ app = Flask("__main__" , template_folder=basedir+"/templates")
 app.config["UPLOAD_FOLDER"] = basedir + "/static/media"
 app.config["MAX_CONTENT_PATH"] = 4*1024*1024
 def allowed(filename):
-	print(filename)
+	#print(filename)
 	return filename.split(".")[len(filename.split("."))-1] in ['jpg','jpeg','png','webm' , 'gif'] , filename.split(".")[len(filename.split("."))-1]
 
 app.config['SECRET_KEY'] = 'thytyhjeyt'
@@ -179,10 +179,10 @@ def reply_finder(text , id , board):
 			link+=text[i]
 
 		i+=1
-	print("LINKS" , links)
+	#print("LINKS" , links)
 	for stuff in links:
 		try:
-			print(board+" "+str(id)+" "+stuff)
+			#print(board+" "+str(id)+" "+stuff)
 			db.session.add(refer(uni=board+" "+str(id)+" "+stuff , board = board , replied_to = int(stuff) , own_id = id))
 			db.session.commit()
 		except:
@@ -220,7 +220,7 @@ def login():
 		if dec(u.password , request.form["password"]):
 			session["username"] = u.username
 			session["rank"] = u.rank
-			print(session["username"] , session["rank"])
+			#print(session["username"] , session["rank"])
 	if "username" in session:
 		return redirect(url_for("index"))
 	return render_template("login.html")
@@ -243,10 +243,10 @@ def ct():
 	if "rank" in session:
 		if session["rank"] == 2:
 			if request.method == "POST":
-				print(request.form)
+				#print(request.form)
 				db.session.add(Boards(name = request.form["board"] , desc = request.form["desc"]))
 				db.session.commit()
-				print("Created MEDIA")
+				#print("Created MEDIA")
 				db.session.add(Media(board = request.form["board"]))
 				db.session.commit()
 				#redirect(url_for("board_home" , board=request.form["board"]))
@@ -260,10 +260,10 @@ def ct():
 @app.route("/<board>/_del_" , methods=["POST"])
 @app.route("/<board>/_del_/" ,  methods=["POST"])
 def d(board):
-	print(request.form)
+	#print(request.form)
 	password = request.form["password"]
 	li = list(request.form.items())
-	print(li)
+	#print(li)
 	for i in li:
 		if i[1] =="THREAD":
 			a = Thread.query.filter_by(board=board).filter_by(id=i[0]).all()[0]
@@ -317,8 +317,8 @@ def board_home(board):
 			if "file" in request.files:
 				file = request.files["file"]
 				file_name = secure_filename(file.filename)
-				print("FILE FOUND")
-				print(file_name)
+				#print("FILE FOUND")
+				#print(file_name)
 				if allowed(file_name)[0]:
 					if allowed(file_name)[1] == "gif":
 						med = Media.query.filter_by(board=board).all()[0]
@@ -355,7 +355,7 @@ def board_home(board):
 				reply_finder(request.form["body"] , bo.last_id+1 , board)
 				t = Thread(uni = bo.name + str(bo.last_id+1),id = bo.last_id+1 , name = trip(request.form["name"]) , body=green(request.form["body"]) , password = enc(request.form["password"]), board = board)
 			else:
-				print(f , "f")
+				#print(f , "f")
 				med = Media.query.filter_by(board=board).all()[0]
 				file_name = secure_filename(file.filename)
 				reply_finder(request.form["body"] , bo.last_id+1 , board)
@@ -381,10 +381,10 @@ def board_home(board):
 
 
 
-			print(bo.last_id)
+			#print(bo.last_id)
 			bo.last_id = bo.last_id + 1
 			db.session.commit()
-			print(bo.last_id)
+			#print(bo.last_id)
 			db.session.add(t)
 			db.session.commit()
 
@@ -408,14 +408,14 @@ def board_thread(board , thread_id):
 	#	thread = None
 
 	if request.method == "POST":
-		print(request.files)
+		#print(request.files)
 		f = None
 		if thread:
 			if "file" in request.files:
 				file = request.files["file"]
 				file_name = secure_filename(file.filename)
-				print("FILE FOUND")
-				print(file_name)
+				#print("FILE FOUND")
+				#print(file_name)
 				if allowed(file_name)[0]:
 					if allowed(file_name)[1] == "gif":
 						med = Media.query.filter_by(board=board).all()[0]
@@ -453,7 +453,7 @@ def board_thread(board , thread_id):
 				p = Post(uni=bo.name + str(bo.last_id + 1), thread_id = thread_id, id=bo.last_id + 1, name=trip(request.form["name"]),
 						   body=green(request.form["body"]), password=enc(request.form["password"]), board=board)
 			else:
-				print(f, "f")
+				#print(f, "f")
 				reply_finder(request.form["body"] , bo.last_id+1 , bo.name)
 				med = Media.query.filter_by(board=board).all()[0]
 				file_name = secure_filename(file.filename)
@@ -491,7 +491,7 @@ def board_thread(board , thread_id):
 
 
 			#p = Post(uni = bo.name + str(bo.last_id+1),id = bo.last_id+1 , name = request.form["name"] , body = request.form["body"] , password = enc(request.form["password"]), board = board , thread_id = thread_id)
-			print(bo.last_id)
+			#print(bo.last_id)
 			bo.last_id = bo.last_id + 1
 			db.session.commit()
 			if request.form["options"].lower() != "sage" or thread.bump==bo.bump_limit:
@@ -499,7 +499,7 @@ def board_thread(board , thread_id):
 				db.session.commit()
 				thread.bump = thread.bump+1
 				db.session.commit()
-			print(bo.last_id)
+			#print(bo.last_id)
 			db.session.add(p)
 			db.session.commit()
 			return render_template("thread.html" ,refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
