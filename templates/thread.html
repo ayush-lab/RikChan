@@ -44,7 +44,13 @@ div.transbox {
   background-color: #f2edeb;
   border: 1px solid black;
   overflow-wrap: break-word;
-  filter: alpha(opacity=60); /* For IE8 and earlier */
+
+  max-width: 50%;
+     /* For IE8 and earlier */
+     
+
+    display: inline;
+    display: inline-block;
 }
 
 
@@ -115,6 +121,7 @@ overflow-wrap: break-word;
 
 {%for p in posts%}
 </style>
+<span class="left">&gt;&gt;</span>
 <div class="background">
   <div class="transbox">
 

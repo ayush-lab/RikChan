@@ -38,7 +38,12 @@ div.transbox {
   border: 1px solid black;
   overflow-wrap: break-word;
 
-   /* For IE8 and earlier */
+  max-width: 50%;
+     /* For IE8 and earlier */
+     
+
+    display: inline;
+    display: inline-block;
 }
 
 div.transboxx {
@@ -116,6 +121,7 @@ img {
 
 
 {%for p in Post.query.filter_by(board=board).filter_by(thread_id = t.id).all()[::-1][0:bo.max_posts_displayed][::-1]%}
+<span class="left">&gt;&gt;</span>
    <div class="background">
   <div class="transbox">
 
@@ -145,6 +151,7 @@ img {
           <font size="2">
           {%for a in refer.query.filter_by(board=board).filter_by(replied_to=p.id).all()%}
           <a href="{{url_maker(a.own_id , board)}}">>>{{a.own_id}}</a>
+
         {%endfor%}
 
       </font>
