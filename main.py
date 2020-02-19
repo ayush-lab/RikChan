@@ -233,13 +233,15 @@ def reply_finder(text , id , board):
 			pass
 
 def url_maker(number , board):
-	number=str(number)
+	number=str(number).strip()
 	if number.isdigit():
 		number=int(number)
 		if Thread.query.filter_by(board=board , id=number).all():
+			print(url_for("board_thread" ,board=board , thread_id=number))
 			return url_for("board_thread" ,board=board , thread_id=number)
 		elif Post.query.filter_by(board=board , id=number).all():
 			a = Post.query.filter_by(board=board , id=number).all()[0]
+			print(url_for("board_thread" ,board=board , thread_id = a.thread_id , _anchor = a.id))
 			return url_for("board_thread" ,board=board , thread_id = a.thread_id , _anchor = a.id)
 	else:
 		b = number.split("/")
