@@ -3,7 +3,7 @@
          <body>
           <center>
         <h1>/{{board}}/</h1>
-         <p><input type = "text" name = "name" placeholder="name" size=50 value="anon"/></p>
+         <p><input type = "text" name = "name" placeholder="name" size=50 value="{{anon}}"/></p>
          <p><input type = "text" name = "options" placeholder="options" size=50/></p>
          <textarea id="body" rows="4" cols="50" placeholder="body" name="body"></textarea>
 
@@ -99,10 +99,10 @@ overflow-wrap: break-word;
                     {{thread.img_name}}</a></br></br>
                 {%endif%}
             {%endif%}
-          {{thread.body | safe}}</br></p>
+          {{green(thread.body , board) | safe}}</br></p>
           <font size="2">
           {%for a in refer.query.filter_by(board=board).filter_by(replied_to=thread.id).all()%}
-          >>{{a.own_id}}
+          <a href="{{url_maker(a.own_id , board)}}">>>{{a.own_id}}</a>
         {%endfor%}
       </font>
 
@@ -144,11 +144,12 @@ overflow-wrap: break-word;
                 {{p.img_name}}</a></br></br>
                 {%endif%}
             {%endif%}
+            <section id="{{p.id}}">
 
-          {{p.body | safe}}</br></p>
+          {{green(p.body , board) | safe}}</br></p>
           <font size="2">
           {%for a in refer.query.filter_by(board=board).filter_by(replied_to=p.id).all()%}
-          >>{{a.own_id}}
+          <a href="{{url_maker(a.own_id , board)}}">>>{{a.own_id}}</a>
         {%endfor%}
       </font>
 

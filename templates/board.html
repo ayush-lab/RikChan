@@ -4,7 +4,7 @@
           <center>
         <h1>/{{board}}/</h1>
         <p1>{{desc}}</p1>
-         <p><input type = "text" name = "name" placeholder="name" size=50 value="anon"/></p>
+         <p><input type = "text" name = "name" placeholder="name" size=50 value="{{anon}}"/></p>
          <textarea id="body" rows="4" cols="50" placeholder="body" name="body"></textarea>
          <p><input type = "password" name = "password" placeholder="password" size=50 value="{{gen(5)}}"/></p>
          <input type="file" name="file">
@@ -92,11 +92,11 @@ img {
                     {{t.img_name}}</a></br></br>
                 {%endif%}
             {%endif%}
-               {{t.body | safe}}
+               {{green(t.body , board) | safe}}
         </p>
         <font size="2">
         {%for a in refer.query.filter_by(board=board).filter_by(replied_to=t.id).all()%}
-          >>{{a.own_id}}
+          <a href="{{url_maker(a.own_id , board)}}">>>{{a.own_id}}</a>
         {%endfor%}
       </font>
 
@@ -141,10 +141,10 @@ img {
                 {%endif%}
             {%endif%}
 
-          {{p.body | safe}}</br></p>
+          {{green(p.body , board) | safe}}</br></p>
           <font size="2">
           {%for a in refer.query.filter_by(board=board).filter_by(replied_to=p.id).all()%}
-          >>{{a.own_id}}
+          <a href="{{url_maker(a.own_id , board)}}">>>{{a.own_id}}</a>
         {%endfor%}
 
       </font>

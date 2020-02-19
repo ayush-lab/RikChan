@@ -117,45 +117,89 @@ def trip(name):
 		else:
 			return li[0].strip()+" !"+tripcodegen(li[0].strip()+li[1].strip())
 
-def green(text):
-	i=0
-	g=0
-	ret = ""
+
+def green(text , board):
+	i = 0
+	green_text=False
+	link_=False
+	link=""
+	res=""
+	
 	while i<len(text):
-		if text[i] == ">":
+		if text[i]==">":
 			try:
-				if text[i-1]!=">" and text[i+1]!=">":
-					if not g:
-						if not i or text[i-1]=="\n":
-							g=1
-							ret+='<font color="green">'+"&gt;"
+				
+				if text[i-1]==">" and  not green_text:
+					link_=True
+					#link+=text[i]
+				elif text[i+1]!=">" and not green_text:
+					green_text=True
+					res+='<font color="green">'+"&gt;"
 				else:
-					ret+="&gt;"
+					if text[i+1]!=">":
+						res+="&gt;"
 			except:
-				ret+="&gt;"
+				res+="&gt;"
+
+		elif text[i]==" ":
+			if link_:
+				link_=False
+				#print("LINK" , link)
+				try:
+					res+="<a href=\""+url_maker(link , board)+"\">"+"&gt;&gt;"+link+"</a>&nbsp;"
+				except:
+					pass
+				link=""
+			else:
+				res+="&nbsp;"
+		elif text[i]=="\n":
+			if link_:
+				link_=False
+				#print("LINK" , link)
+				try:
+					res+="<a href=\""+url_maker(link , board)+"\">"+"&gt;&gt;"+link+"</a></br>"
+				except:
+					pass
+				link=""
+			elif green_text:
+				green_text=False
+				res+="</br></font>"
+			else:
+				res+="</br>"
+		elif link_:
+			link+=text[i]
+			if i == len(text)-1:
+				res+="<a href=\""+url_maker(link , board)+"\">"+"&gt;&gt;"+link+"</a></br>"
+				link=""
+				link_=False
 		elif text[i] == "<":
-			ret += "&lt;"
+			res += "&lt;"
 		elif text[i] == "\"":
-			ret+="&quot;"
+			res+="&quot;"
 		elif text[i] == "\'":
-			ret+="&apos;"
+			res+="&apos;"
 		elif text[i] == "&":
-			ret+="&amp;"
-		elif text[i] == "\n":
-			if g==1:
-				g=0
-				ret+="</font>"
-			ret+="</br>"
-		elif text[i] == " ":
-			ret += "&nbsp;"
+			res+="&amp;"
+		elif i == len(text)-1:
+			
+			if green_text:
+				green_text=False
+				res+=text[i]+"</font>"
+
+			elif link_:
+				link_=False
+				res+="<a href=\""+url_maker(link+text[i] , board)+"\">"+"&gt;&gt;"+link+text[i]+"&nbsp;</a>"
+			else:
+				res+=text[i]
 		else:
-			ret+=text[i]
-		if i == len(text)-1:
-			if g==1:
-				ret+="</font>"
-				return ret
+			res+=text[i]
+
 		i+=1
-	return ret.strip()
+	#print(res)
+	return res.strip()
+
+
+
 
 def reply_finder(text , id , board):
 	i = 0
@@ -189,47 +233,23 @@ def reply_finder(text , id , board):
 			pass
 
 def url_maker(number , board):
-	if Thread.query.filter_by(board=board , id=number).all():
-		return url_for("board_thread" ,board=board , thread_id=number)
+	number=str(number)
+	if number.isdigit():
+		number=int(number)
+		if Thread.query.filter_by(board=board , id=number).all():
+			return url_for("board_thread" ,board=board , thread_id=number)
+		elif Post.query.filter_by(board=board , id=number).all():
+			a = Post.query.filter_by(board=board , id=number).all()[0]
+			return url_for("board_thread" ,board=board , thread_id = a.thread_id , _anchor = a.id)
 	else:
-		a = Post.query.filter_by(board=board , id=number).all()[0]
-		return url_for("board_thread" ,board=board , thread_id = a.thread_id , _anchor = a.id)
-
-def link_in_text(text , board):
-	print("hi")
-	i = 0
-	link=""
-	link_=0
-	links=[]
-	while i<len(text):
-		if text[i]==">":
-			if not link_:
-				try:
-					if text[i+1]==">":
-						link_=1
-				except:
-					pass
-		elif text[i]==" " or i == len(text)-1 or text[i]=="\n":
-			if link_:
-				link_=0
-				links.append(link+text[i])
-				link=""
-		elif link_:
-			link+=text[i]
-
-		i+=1
-	print(links)
-	print(text)
-	for link in links:
-		if link.isdigit():
-			text = text.replace(">>"+link , "<a href=\""+url_maker(int(link) , board)+"\">"+">>"+link+"</a>")
+		b = number.split("/")
+		while "" in b:
+			b.remove("")
+		if len(b)>=2:
+			return url_maker(b[1],b[0])
 		else:
-			text = text.replace(">>"+link , "<a href=\""+link+"\">"+">>"+link+"</a>")
-	print("hii")
-	print(text)
-	return text
-		
-
+			return number
+		#return number
 
 
 #db.create_all()
@@ -409,7 +429,7 @@ def board_home(board):
 			if not f:
 				session["name"]=request.form["name"]
 				reply_finder(request.form["body"] , bo.last_id+1 , board)
-				t = Thread(uni = bo.name + str(bo.last_id+1),id = bo.last_id+1 , name = trip(request.form["name"]) , body=green(request.form["body"]) , password = enc(request.form["password"]), board = board)
+				t = Thread(uni = bo.name + str(bo.last_id+1),id = bo.last_id+1 , name = trip(request.form["name"]) , body=request.form["body"] , password = enc(request.form["password"]), board = board)
 			else:
 				#print(f , "f")
 				session["name"]=request.form["name"]
@@ -417,23 +437,23 @@ def board_home(board):
 				file_name = secure_filename(file.filename)
 				reply_finder(request.form["body"] , bo.last_id+1 , board)
 				if f == "gif":
-					t = Thread(img_ext = f , img_num = med.gif, img_name=file_name, uni = bo.name + str(bo.last_id+1),id=bo.last_id + 1, name=trip(request.form["name"]), body=green(request.form["body"]),
+					t = Thread(img_ext = f , img_num = med.gif, img_name=file_name, uni = bo.name + str(bo.last_id+1),id=bo.last_id + 1, name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "jpg":
 					t = Thread(img_ext=f, img_num=med.jpg,uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=green(request.form["body"]),
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "jpeg":
 					t = Thread(img_ext=f, img_num=med.jpeg, uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=green(request.form["body"]),
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "png":
 					t = Thread(img_ext=f, img_num=med.png, uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=green(request.form["body"]),
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "webm":
 					t = Thread(img_ext=f, img_num=med.webm ,uni = bo.name + str(bo.last_id+1), img_name=file_name, id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=green(request.form["body"]),
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 
 
@@ -445,10 +465,10 @@ def board_home(board):
 			db.session.add(t)
 			db.session.commit()
 
-			return render_template("board.html" ,url_maker=url_maker,anon=session["name"],refer=refer,bo=bo, gen=gen , Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
+			return render_template("board.html" ,green=green,url_maker=url_maker,anon=session["name"],refer=refer,bo=bo, gen=gen , Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
 
 	if bo:
-		return render_template("board.html" ,url_maker=url_maker,anon=session["name"],refer=refer,bo=bo,gen=gen ,Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
+		return render_template("board.html" ,green=green,url_maker=url_maker,anon=session["name"],refer=refer,bo=bo,gen=gen ,Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
 	else:
 		return "e404"
 
@@ -511,7 +531,7 @@ def board_thread(board , thread_id):
 				reply_finder(request.form["body"] , bo.last_id+1 , bo.name)
 				session["name"]=request.form["name"]
 				p = Post(uni=bo.name + str(bo.last_id + 1), thread_id = thread_id, id=bo.last_id + 1, name=trip(request.form["name"]),
-						   body=green(request.form["body"]), password=enc(request.form["password"]), board=board)
+						   body=request.form["body"], password=enc(request.form["password"]), board=board)
 			else:
 				#print(f, "f")
 				reply_finder(request.form["body"] , bo.last_id+1 , bo.name)
@@ -520,27 +540,27 @@ def board_thread(board , thread_id):
 				file_name = secure_filename(file.filename)
 				if f == "gif":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.gif, img_name=file_name, uni=bo.name + str(bo.last_id + 1),
-							   id=bo.last_id + 1, name=trip(request.form["name"]),body=green(request.form["body"]),
+							   id=bo.last_id + 1, name=trip(request.form["name"]),body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "jpg":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.jpg, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
 							   id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=green(request.form["body"]),
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "jpeg":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.jpeg, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
 							   id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=green(request.form["body"]),
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "png":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.png, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
 							   id=bo.last_id + 1,
-							   name=trip(request.form["name"]), body=green(request.form["body"]),
+							   name=trip(request.form["name"]), body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 				elif f == "webm":
 					p = Post(img_ext=f, thread_id = thread_id, img_num=med.webm, uni=bo.name + str(bo.last_id + 1), img_name=file_name,
 							   id=bo.last_id + 1,
-							   name=trip(request.form["name"]),body=green(request.form["body"]),
+							   name=trip(request.form["name"]),body=request.form["body"],
 							   password=enc(request.form["password"]), board=board)
 
 			#print(bo.last_id)
@@ -563,10 +583,10 @@ def board_thread(board , thread_id):
 			#print(bo.last_id)
 			db.session.add(p)
 			db.session.commit()
-			return render_template("thread.html" ,url_maker=url_maker,anon=session["name"],refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
+			return render_template("thread.html" ,green=green,url_maker=url_maker,anon=session["name"],refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
 
 	if thread:
-		return render_template("thread.html" ,url_maker=url_maker,anon=session["name"],refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
+		return render_template("thread.html" ,green=green,url_maker=url_maker,anon=session["name"],refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
 	else:
 		return "e404"
 
