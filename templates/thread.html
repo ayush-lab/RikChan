@@ -89,13 +89,13 @@ overflow-wrap: break-word;
         <p>
             {%if thread.img_num %}
                 {%if thread.img_ext!="webm" %}
-                    <img src="../media/{{board}}{{thread.img_num}}.{{thread.img_ext}}" alt="{{thread.img_name}}" id="{{board}}{{thread.img_num}}.{{thread.img_ext}}" onclick="zoomzoom('{{board}}{{thread.img_num}}.{{thread.img_ext}}')"></br><a href="../media/{{board}}{{thread.img_num}}.{{thread.img_ext}}">{{thread.img_name}}</a></br></br>
+                    <img src="/media/{{board}}{{thread.img_num}}.{{thread.img_ext}}" alt="{{thread.img_name}}" id="{{board}}{{thread.img_num}}.{{thread.img_ext}}" onclick="zoomzoom('{{board}}{{thread.img_num}}.{{thread.img_ext}}')"></br><a href="/media/{{board}}{{thread.img_num}}.{{thread.img_ext}}">{{thread.img_name}}</a></br></br>
                 {%else%}
                 <video width="320" height="240" controls>
   
-                  <source src="../media/{{board}}{{thread.img_num}}.{{thread.img_ext}}" type="video/webm">
+                  <source src="/media/{{board}}{{thread.img_num}}.{{thread.img_ext}}" type="video/webm">
   
-               </video></br><a href="../media/{{board}}{{thread.img_num}}.{{thread.img_ext}}">
+               </video></br><a href="/media/{{board}}{{thread.img_num}}.{{thread.img_ext}}">
                     {{thread.img_name}}</a></br></br>
                 {%endif%}
             {%endif%}
@@ -133,14 +133,14 @@ overflow-wrap: break-word;
             {%if p.img_num %}
                 {%if p.img_ext!="webm" %}
                     
-                    <img src="../media/{{board}}{{p.img_num}}.{{p.img_ext}}" alt="{{p.img_name}}" id="{{board}}{{p.img_num}}.{{p.img_ext}}" onclick="zoomzoom('{{board}}{{p.img_num}}.{{p.img_ext}}')"></br><a href="../media/{{board}}{{p.img_num}}.{{p.img_ext}}">
+                    <img src="/media/{{board}}{{p.img_num}}.{{p.img_ext}}" alt="{{p.img_name}}" id="{{board}}{{p.img_num}}.{{p.img_ext}}" onclick="zoomzoom('{{board}}{{p.img_num}}.{{p.img_ext}}')"></br><a href="../media/{{board}}{{p.img_num}}.{{p.img_ext}}">
                     {{p.img_name}}</a></br></br>
                     {%else%}
                 <video width="320" height="240" controls>
   
-                  <source src="../media/{{board}}{{p.img_num}}.{{p.img_ext}}" type="video/webm">
+                  <source src="/media/{{board}}{{p.img_num}}.{{p.img_ext}}" type="video/webm">
   
-               </video></br><a href="../media/{{board}}{{p.img_num}}.{{p.img_ext}}">
+               </video></br><a href="/media/{{board}}{{p.img_num}}.{{p.img_ext}}">
                 {{p.img_name}}</a></br></br>
                 {%endif%}
             {%endif%}
