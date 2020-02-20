@@ -127,19 +127,30 @@ def green(text , board):
 	
 	while i<len(text):
 		if text[i]==">":
+			if i==len(text)-1:
+				if green_text:
+					res+="&gt;"+"</font>"
+				else:
+					res+='<font color="green">'+"&gt;"+"</font>"
+				pass
+
+
 			try:
 				
 				if text[i-1]==">" and  not green_text:
 					link_=True
 					#link+=text[i]
+				
 				elif text[i+1]!=">" and not green_text:
 					green_text=True
 					res+='<font color="green">'+"&gt;"
+				
 				else:
-					if text[i+1]!=">":
+					if text[i+1]!=">" and i==len(text)-1:
 						res+="&gt;"
 			except:
-				res+="&gt;"
+				if i!=len(text)-1:
+					res+="&gt;"
 
 		elif text[i]==" ":
 			if link_:
