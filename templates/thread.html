@@ -1,4 +1,4 @@
-<title>/{{board}}/ - RikChan</title><body style="background-color:#FFFFF0">
+<title>/{{board}}/ - RikChan</title><body style="background-color:#FFFFF0" text=#800000>
 <form action = "/{{board}}/{{thread_id}}/" method = "post" enctype=multipart/form-data>
          <body>
           <center>
@@ -28,7 +28,6 @@
 *{box-sizing: border-box;}
 
 
-
 .right{
     float:right;
 }
@@ -36,16 +35,13 @@
     float:left;
 }
 
-img {
-    width:150px;
-    
-    }
 div.transbox {
-  background-color: #f2edeb;
-  border: 1px solid black;
+  background-color:#F1E0D7 ;
+ 
   overflow-wrap: break-word;
 
-  max-width: 50%;
+  max-width: 80%;
+  min-width: 50%;
      /* For IE8 and earlier */
      
 
@@ -53,15 +49,32 @@ div.transbox {
     display: inline-block;
 }
 
-
 div.transboxx {
-  background-color: #F1E0D7;
-  border: 1px solid black;
-overflow-wrap: break-word;
-  filter: alpha(opacity=60); /* For IE8 and earlier */
+  background-color: #FFFFF0;
+  
+  overflow-wrap: break-word;
+
+
+  /* For IE8 and earlier */
 }
 
+div.one{
+background-color: #FFFFF0;
+  width: 100%;
+  overflow-wrap: break-word;
+  display: inline;
+    display: inline-block;
 
+}
+
+img {
+    width:150px;
+    margin-right: 15px;
+    height:auto;
+    }
+video {
+  margin-right: 15px;
+}
 
 
  </head>
@@ -79,94 +92,95 @@ overflow-wrap: break-word;
 
 
 <form action="/{{board}}/_del_" method = "post">
-<div class="background">
-  <div class="transboxx">
-
-        <body>
-          <span class="left"><input type="checkbox" name="{{thread.id}}" value="THREAD"></span>
-         <span class="left">
-          {{thread.name}}       No.{{thread.id}}
-        </span>
-        <span class="right">
-        {{thread.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}}
-        </span>
-
-        </br>
-        <p>
-            {%if thread.img_num %}
+<hr>
+  <div class="one">
+{%if thread.img_num %}
                 {%if thread.img_ext!="webm" %}
-                    <img src="/media/{{board}}{{thread.img_num}}.{{thread.img_ext}}" alt="{{thread.img_name}}" id="{{board}}{{thread.img_num}}.{{thread.img_ext}}" onclick="zoomzoom('{{board}}{{thread.img_num}}.{{thread.img_ext}}')"></br><a href="/media/{{board}}{{thread.img_num}}.{{thread.img_ext}}">{{thread.img_name}}</a></br></br>
+                <a href="/media/{{board}}{{thread.img_num}}.{{thread.img_ext}}">
+                    {{thread.img_name}}</a></br>
+                    <span class="left"><img src="/media/{{board}}{{thread.img_num}}.{{thread.img_ext}}" alt="{{thread.img_name}}" id="{{board}}{{thread.img_num}}.{{thread.img_ext}}" onclick="zoomzoom('{{board}}{{thread.img_num}}.{{thread.img_ext}}')"></br></span>
                 {%else%}
-                <video width="320" height="240" controls>
+                <a href="/media/{{board}}{{thread.img_num}}.{{thread.img_ext}}">
+                    {{t.img_name}}</a></br>
+                <span class="left"><video width="320" height="240" controls>
   
-                  <source src="/media/{{board}}{{thread.img_num}}.{{thread.img_ext}}" type="video/webm">
+                  <source src="../media/{{board}}{{thread.img_num}}.{{thread.img_ext}}" type="video/webm">
   
-               </video></br><a href="/media/{{board}}{{thread.img_num}}.{{thread.img_ext}}">
-                    {{thread.img_name}}</a></br></br>
+               </video></br></span>
                 {%endif%}
             {%endif%}
-          {{green(thread.body , board) | safe}}</br></p>
-          <font size="2">
+
+
+
+  <div class="transboxx">
+
+        <span class="left"><input type="checkbox" name="{{thread.id}}" value="THREAD"></span>
+
+          {{thread.name}} {{thread.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}} No.{{thread.id}}<font size="2">
           {%for a in refer.query.filter_by(board=board).filter_by(replied_to=thread.id).all()%}
-          <a href="{{url_maker(a.own_id , board)}}">>>{{a.own_id}}</a>
+          &nbsp;<a href="{{url_maker(a.own_id , board)}}">>>{{a.own_id}}</a>
         {%endfor%}
       </font>
+
+        </br>
+        <p>{{green(thread.body , board) | safe}}</br></p>
+          
 
         </body>
 
 
-   </div>
+   
    </div>
 
 
 {%for p in posts%}
-</style>
 <span class="left">&gt;&gt;</span>
-<div class="background">
+   
   <div class="transbox">
 
-        <body>
-           <span class="left"><input type="checkbox" name="{{p.id}}" value="POST"></span>
-            <span class="left">
-          {{p.name}}       No.{{p.id}}
-            </span>
-            <span class="right">
-            {{p.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}}
-            </span>
+
+          <span class="left"><input type="checkbox" name="{{p.id}}" value="POST"></span>
+
+          <span class="left">{{p.name}} {{p.timestamp.strftime("%m/%d/%Y, %H:%M:%S")}} No.{{p.id}}</span> <font size="2">
+          {%for a in refer.query.filter_by(board=board).filter_by(replied_to=p.id).all()%}
+          &nbsp;<a href="{{url_maker(a.own_id , board)}}">>>{{a.own_id}}</a>
+
+        {%endfor%}
+
+      </font>
+
 
         </br>
         <p>
 
+
             {%if p.img_num %}
+            <a href="/media/{{board}}{{p.img_num}}.{{p.img_ext}}">
+                    {{p.img_name}}</a></br>
                 {%if p.img_ext!="webm" %}
-                    
-                    <img src="/media/{{board}}{{p.img_num}}.{{p.img_ext}}" alt="{{p.img_name}}" id="{{board}}{{p.img_num}}.{{p.img_ext}}" onclick="zoomzoom('{{board}}{{p.img_num}}.{{p.img_ext}}')"></br><a href="../media/{{board}}{{p.img_num}}.{{p.img_ext}}">
-                    {{p.img_name}}</a></br></br>
-                    {%else%}
+                    <img src="/media/{{board}}{{p.img_num}}.{{p.img_ext}}" alt="{{p.img_name}}" id="{{board}}{{p.img_num}}.{{p.img_ext}}" onclick="zoomzoom('{{board}}{{p.img_num}}.{{p.img_ext}}')"></br></br>
+                {%else%}
                 <video width="320" height="240" controls>
   
                   <source src="/media/{{board}}{{p.img_num}}.{{p.img_ext}}" type="video/webm">
   
-               </video></br><a href="/media/{{board}}{{p.img_num}}.{{p.img_ext}}">
-                {{p.img_name}}</a></br></br>
+               </video></br></br>
                 {%endif%}
             {%endif%}
-            <section id="{{p.id}}">
 
           {{green(p.body , board) | safe}}</br></p>
-          <font size="2">
-          {%for a in refer.query.filter_by(board=board).filter_by(replied_to=p.id).all()%}
-          <a href="{{url_maker(a.own_id , board)}}">>>{{a.own_id}}</a>
-        {%endfor%}
-      </font>
-
-        </body>
+          
 
 
+
+
+  
    </div>
-   </div>
+</br>
+</br>
    {%endfor%}
-
+ </div>
+<hr>
 Delete:
   <input type = "password" name = "password" placeholder="password" size=50/>
            <button class="button" value="upload"><b>SUMBIT</b></button>
