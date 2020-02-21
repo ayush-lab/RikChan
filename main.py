@@ -335,7 +335,7 @@ def ct():
 				#print("Created MEDIA")
 				db.session.add(Media(board = request.form["board"]))
 				db.session.commit()
-				#redirect(url_for("board_home" , board=request.form["board"]))
+				return redirect(url_for("board_home" , board=request.form["board"]))
 			return render_template("ct.html")
 		else:
 			return "stfu"
@@ -401,6 +401,8 @@ def board_home(board):
 
 	if request.method == "POST":
 		#print(request.files)
+		if request.form["body"]=="":
+			return redirect(url_for("index"))
 		f = None
 		if bo:
 			t = None
@@ -503,6 +505,8 @@ def board_thread(board , thread_id):
 
 	if request.method == "POST":
 		#print(request.files)
+		if request.form["body"]=="":
+			return redirect(url_for("index"))
 		f = None
 		if thread:
 			if "file" in request.files:
