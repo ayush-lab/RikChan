@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 import datetime
 import secrets
 import string
+import random
 
 app = Flask("__main__" , template_folder=basedir+"/templates")
 
@@ -265,7 +266,12 @@ def url_maker(number , board):
 		else:
 			return number
 		#return number
-
+def random_banner():
+	p=[]
+	for i in os.listdir(basedir+"/static/banners"):
+		if not i.startswith("."):
+			p.append(i)
+	return random.choice(p)
 
 #db.create_all()
 
@@ -320,6 +326,20 @@ def logout():
 @app.route("/media/<path:p>/")
 def serve(p):
 	return send_from_directory(app.config["UPLOAD_FOLDER"] , p)
+
+@app.route("/_banner/<path:p>",methods=["GET" , "POST"])
+@app.route("/_banner/<path:p>/",methods=["GET" , "POST"])
+def serve_banner(p):
+	#p=[]
+	#print("22")
+	#for i in os.listdir("static/banners"):
+	#	if not i.startswith("."):
+	#		p.append(i)
+	#a=random.choice(p)
+	#print(a)
+	return send_from_directory(basedir + "/static/banners", p)
+	#return "yay"
+
 
 @app.route("/_ct_", methods=["GET" , "POST"])
 @app.route("/_ct_/", methods=["GET" , "POST"])
@@ -482,10 +502,10 @@ def board_home(board):
 			db.session.add(t)
 			db.session.commit()
 
-			return render_template("board.html" ,green=green,url_maker=url_maker,anon=session["name"],refer=refer,bo=bo, gen=gen , Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
+			return render_template("board.html" ,random=random_banner,green=green,url_maker=url_maker,anon=session["name"],refer=refer,bo=bo, gen=gen , Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
 
 	if bo:
-		return render_template("board.html" ,green=green,url_maker=url_maker,anon=session["name"],refer=refer,bo=bo,gen=gen ,Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
+		return render_template("board.html" ,random=random_banner,green=green,url_maker=url_maker,anon=session["name"],refer=refer,bo=bo,gen=gen ,Post = Post, board = board , desc = bo.desc , threads = Thread.query.filter_by(board=board).order_by(desc(Thread.bumptime)).all())
 	else:
 		return "e404"
 
@@ -602,10 +622,10 @@ def board_thread(board , thread_id):
 			#print(bo.last_id)
 			db.session.add(p)
 			db.session.commit()
-			return render_template("thread.html" ,green=green,url_maker=url_maker,anon=session["name"],refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
+			return render_template("thread.html" ,random=random_banner,green=green,url_maker=url_maker,anon=session["name"],refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
 
 	if thread:
-		return render_template("thread.html" ,green=green,url_maker=url_maker,anon=session["name"],refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
+		return render_template("thread.html" ,random=random_banner,green=green,url_maker=url_maker,anon=session["name"],refer=refer,gen=gen , board = board , thread_id = thread_id , thread=thread, posts = Post.query.filter_by(board=board).filter_by(thread_id = thread_id).order_by(asc(Post.timestamp)).all())
 	else:
 		return "e404"
 
