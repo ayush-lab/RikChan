@@ -254,6 +254,8 @@ def url_maker(number , board):
 			a = Post.query.filter_by(board=board , id=number).all()[0]
 			#print(url_for("board_thread" ,board=board , thread_id = a.thread_id , _anchor = a.id))
 			return url_for("board_thread" ,board=board , thread_id = a.thread_id , _anchor = a.id)
+		else:
+			return ""
 	else:
 		b = number.split("/")
 		while "" in b:
