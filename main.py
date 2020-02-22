@@ -276,13 +276,25 @@ def random_banner():
 
 def log(board , post , ip):
 	if os.path.exists("log.txt"):
-		a = open(basedir+"/log.txt", "a")
+		a = open(basedir+"log.txt", "a")
 	else:
 		a = open(basedir+"/log.txt" , "w")
 	a.write(str(board)+" " + str(post) +" "+ str(ip) +"\n")
 	a.close()
 
-
+def is_banned(ip):
+	a = open(basedir+"/ban.txt" , "r")
+	b = a.read()
+	a.close()
+	b = b.split("\n")
+	ips=[]
+	for i in b:
+		if i!="":
+			ips.append(i)
+	for i in ips:
+		if ip.startswith(i):
+			return 1
+	return 0
 #db.create_all()
 
 
@@ -429,7 +441,8 @@ def board_home(board):
 			exists = True
 			bo = b
 
-	if request.method == "POST":
+	if request.method == "POST" and not is_banned(request.remote_addr):
+	#if request.method == "POST" and not is_banned(request.headers['X-Real-IP']):
 		#print(request.files)
 		if request.form["body"]=="":
 			return redirect(url_for("index"))
@@ -437,6 +450,7 @@ def board_home(board):
 		if bo:
 			t = None
 			log(board , bo.last_id + 1 , request.remote_addr)
+			#log(board , bo.last_id + 1 , request.headers['X-Real-IP']) #for cloud based servers
 			if "file" in request.files:
 				file = request.files["file"]
 				file_name = secure_filename(file.filename)
@@ -534,13 +548,15 @@ def board_thread(board , thread_id):
 	#except:
 	#	thread = None
 
-	if request.method == "POST":
+	if request.method == "POST" and not is_banned(request.remote_addr):
+	#if request.method == "POST" and not is_banned(request.headers['X-Real-IP']):
 		#print(request.files)
 		if request.form["body"]=="":
 			return redirect(url_for("index"))
 		f = None
 		if thread:
 			log(board , bo.last_id + 1 , request.remote_addr)
+			#log(board , bo.last_id + 1 , request.headers['X-Real-IP']) #for cloud based servers
 			if "file" in request.files:
 				file = request.files["file"]
 				file_name = secure_filename(file.filename)
