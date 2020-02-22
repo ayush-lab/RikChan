@@ -12,6 +12,7 @@ import secrets
 import string
 import random
 
+
 app = Flask("__main__" , template_folder=basedir+"/templates")
 
 app.config["UPLOAD_FOLDER"] = basedir + "/static/media"
@@ -273,6 +274,15 @@ def random_banner():
 			p.append(i)
 	return random.choice(p)
 
+def log(board , post , ip):
+	if os.path.exists("log.txt"):
+		a = open(basedir+"/log.txt", "a")
+	else:
+		a = open(basedir+"/log.txt" , "w")
+	a.write(str(board)+" " + str(post) +" "+ str(ip) +"\n")
+	a.close()
+
+
 #db.create_all()
 
 
@@ -426,6 +436,7 @@ def board_home(board):
 		f = None
 		if bo:
 			t = None
+			log(board , bo.last_id + 1 , request.remote_addr)
 			if "file" in request.files:
 				file = request.files["file"]
 				file_name = secure_filename(file.filename)
@@ -529,6 +540,7 @@ def board_thread(board , thread_id):
 			return redirect(url_for("index"))
 		f = None
 		if thread:
+			log(board , bo.last_id + 1 , request.remote_addr)
 			if "file" in request.files:
 				file = request.files["file"]
 				file_name = secure_filename(file.filename)
